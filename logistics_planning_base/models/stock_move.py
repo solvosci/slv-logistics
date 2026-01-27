@@ -33,8 +33,8 @@ class StockMove(models.Model):
             )
         )
         for move in internal_moves:
-            move.warehouse_partner_id = move.location_id.get_warehouse().partner_id
-        (self - internal_moves).write({"warehouse_partner_id": False})
+            move.warehouse_partner_id = move.location_id.warehouse_id.partner_id
+        (self - internal_moves).update({"warehouse_partner_id": False})
 
     def _prepare_name_get(self):
         return (
@@ -43,43 +43,39 @@ class StockMove(models.Model):
             (self.picking_id.name, self.product_uom_qty, self.product_uom.name)
         )
 
-    def name_get(self):
+    @api.depends("picking_id.name", "product_uom_qty", "product_uom.name")
+    def _compute_display_name(self):
+        # FIXME it seems to work, but @api.depends_context("logistics_schedule_view")
+        # should be added IMO
         if self.env.context.get("logistics_schedule_view", False):
-            result = []
-            for rec in self:
-                # name = (
-                #     "%s (%.3f %s)"
-                #     %
-                #     (rec.picking_id.name, rec.product_uom_qty, rec.product_uom.name)
-                # )
-                # result.append((rec.id, name))
-                result.append((rec.id, rec._prepare_name_get()))
-            return result
+            for record in self:
+                record.display_name = record._prepare_name_get()
         else:
-            return super().name_get()
+            super(StockMove, self)._compute_display_name()
 
     @api.model
-    def _name_search(self, name, args=None, operator="ilike", limit=100, name_get_uid=None):
+    def _name_search(self, name, domain=None, operator="ilike", limit=None, order=None):
         """
         If we comes from logistics schedule, we add picking and product search,
         and sorted by picking
         """
         if self.env.context.get("logistics_schedule_view", False) and name:
-            args = args or []
-            domain = [
+            domain = domain or []
+            extra_domain = [
                 "|",
                 ("picking_id.name", operator, name),
                 "|",
                 ("product_id.default_code", operator, name),
                 ("product_id.name", operator, name),
             ]
-            rec = self._search(
-                expression.AND([domain, args]), limit=limit,
-                access_rights_uid=name_get_uid,
+            rec_ids = self._search(
+                expression.AND([extra_domain, domain]), limit=limit, order=order,
             )
-            return models.lazy_name_get(
-                self.browse(rec).with_user(name_get_uid).sorted(key=lambda x: (x.picking_id.name))
+            records = self.browse(rec_ids).sorted(
+                key=lambda x: (x.picking_id.name or "")
             )
-        else:
-            return super()._name_search(name=name, args=args, operator=operator, limit=limit, name_get_uid=name_get_uid)
-    
+            return records.ids
+
+        return super()._name_search(
+            name=name, domain=domain, operator=operator, limit=limit, order=order
+        )
