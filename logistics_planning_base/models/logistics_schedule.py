@@ -20,25 +20,9 @@ LICENSE_PLATE_RE = "^\w+$"
 class LogisticsSchedule(models.Model):
     _name = 'logistics.schedule'
     _description = 'logistics.schedule'
+    _inherit = ["mail.thread"]
     _order = "scheduled_load_date desc, id desc"
 
-    # Only editable in draft mode
-    READONLY1_STATES = {
-        "ready": [("readonly", True)],
-        "cancel": [("readonly", True)],
-        "done": [("readonly", True)],
-    }
-    # Only editable in ready mode
-    READONLY2_STATES = {
-        "draft": [("readonly", True)],
-        "cancel": [("readonly", True)],
-        "done": [("readonly", True)],
-    }
-    # Readonly when not pending
-    READONLY3_STATES = {
-        "cancel": [("readonly", True)],
-        "done": [("readonly", True)],
-    }
 
     name = fields.Char(compute='_compute_name')
     company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
@@ -58,7 +42,6 @@ class LogisticsSchedule(models.Model):
             ('input', 'Input'),
             ('output', 'Output'),
         ],
-        states=READONLY1_STATES,
     )
     origin = fields.Char(
         readonly=True,
@@ -69,24 +52,20 @@ class LogisticsSchedule(models.Model):
     )
     stock_move_id = fields.Many2one(
         'stock.move',
-        states=READONLY2_STATES,
         copy=False,
     )
     picking_id = fields.Many2one('stock.picking', related='stock_move_id.picking_id', store=True)
     destination_partner_id = fields.Many2one(
         'res.partner',
         string="Destination",
-        states=READONLY3_STATES,
     )
-    partner_id = fields.Many2one('res.partner', states=READONLY3_STATES)
+    partner_id = fields.Many2one('res.partner')
     transport_type = fields.Selection(
         selection=TRANSPORT_TYPE,
-        states=READONLY1_STATES,
     )
     product_id = fields.Many2one(
         'product.product',
         domain="[('type', 'in', ['product', 'consu'])]",
-        states=READONLY3_STATES,
     )
     # TODO set as related? Default value?
     product_uom = fields.Many2one('uom.uom', readonly=True)
@@ -97,52 +76,44 @@ class LogisticsSchedule(models.Model):
         store=True,
         readonly=False,
         copy=False,
-        states=READONLY3_STATES,
     )
-    scheduled_load_date = fields.Date(states=READONLY1_STATES, copy=False)
+    scheduled_load_date = fields.Date(copy=False)
     commitment_date = fields.Datetime(
-        states=READONLY3_STATES,
         string='Load Date',
         copy=False,
     )
-    commitment_date_hour = fields.Float(states=READONLY2_STATES, copy=False)
+    commitment_date_hour = fields.Float(copy=False)
     effective_date = fields.Datetime(
-        states=READONLY2_STATES,
         string='Unloading Date',
         copy=False,
     )
-    rescheduled_date = fields.Date(states=READONLY3_STATES, copy=False)
+    rescheduled_date = fields.Date(copy=False)
     logistics_price_unit_type = fields.Selection(
         selection=PRICE_UNIT_TYPES,
         string="Price Type",
-        states=READONLY3_STATES,
     )
     currency_id = fields.Many2one('res.currency', default=lambda self: self.env.company.currency_id)
     logistics_price_unit = fields.Float(
         digits='Product Price',
         string="Price unit",
-        states=READONLY1_STATES,
     )
     logistics_price_unit_done = fields.Float(
         digits='Product Price',
         string="Price Unit Done",
-        states=READONLY3_STATES,
         copy=False,
     )
     carrier_id = fields.Many2one(
         'res.partner',
         string="Carrier",
-        states=READONLY3_STATES,
     )
     effective_carrier_id = fields.Many2one(
         'res.partner',
         string="Effective Carrier",
-        states=READONLY3_STATES,
     )
-    license_plate_1 = fields.Char(states=READONLY3_STATES)
-    license_plate_2 = fields.Char(states=READONLY3_STATES)
-    license_plate_3 = fields.Char(states=READONLY3_STATES)
-    schedule_finished = fields.Boolean(states=READONLY2_STATES, copy=False)
+    license_plate_1 = fields.Char()
+    license_plate_2 = fields.Char()
+    license_plate_3 = fields.Char()
+    schedule_finished = fields.Boolean(copy=False)
     note = fields.Text(copy=False)
 
     partner_readonly = fields.Boolean(
@@ -162,7 +133,6 @@ class LogisticsSchedule(models.Model):
     )
     etd_date = fields.Date(
         string="ETD Date",
-        states=READONLY3_STATES,
         copy=False
     )
 
@@ -271,13 +241,10 @@ class LogisticsSchedule(models.Model):
     def action_logistics_schedule_form_view(self):
         # action = self.env.ref('logistics_planning_base.action_logistics_schedule_form')
         # action_logistics_schedule_input
-        action = self.env.ref(
-            "logistics_planning_base.action_logistics_schedule_%s_form"
-            % self.env.context.get("default_type", self.type)
-        )
-        result = action.read()[0]
-        result["res_id"] = self.id
-        return result
+        xmlid = "logistics_planning_base.action_logistics_schedule_%s_form" % self.env.context.get("default_type", self.type)
+        action = self.env["ir.actions.act_window"]._for_xml_id(xmlid)
+        action["res_id"] = self.id
+        return action
 
     def action_logistics_schedule_draft(self):
         self.browse(self.env.context.get("active_ids", []))._action_draft()

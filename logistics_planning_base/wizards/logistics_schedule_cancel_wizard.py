@@ -8,7 +8,7 @@ class LogisticsScheduleCancel(models.TransientModel):
     _name = 'logistics.schedule.cancel.wizard'
     _description = "Logistics Schedule Cancel wizard"
 
-    logistics_schedule_ids = fields.Many2many('logistics.schedule', readonly=True)
+    logistics_schedule_ids = fields.Many2many('logistics.schedule')
 
     def button_cancel(self):
         self.logistics_schedule_ids._action_cancel()

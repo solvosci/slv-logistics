@@ -11,7 +11,6 @@ class ReturnPickingLS(models.TransientModel):
     stock_return_picking_id = fields.Many2one(
         comodel_name="stock.return.picking",
         required=True,
-        readonly=True,
     )
 
     def create_return_ls_ok(self):

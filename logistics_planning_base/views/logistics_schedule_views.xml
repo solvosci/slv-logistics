@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
     <record id="action_logistics_schedule_draft" model="ir.actions.server">
@@ -75,17 +74,20 @@
                     title="Edit"
                 />
                 <field name="origin" optional="show" />
-                <field name="destination_partner_id" optional="show" />                
-                <field name="partner_readonly" invisible="1" />
+                <field name="destination_partner_id"
+                    optional="show"
+                    readonly="state in ['cancel', 'done']"
+                />
+                <field name="partner_readonly" column_invisible="1" />
                 <field
                     name="partner_id"
                     optional="show"
-                    attrs="{'readonly': [('partner_readonly', '=', True)]}"
+                    readonly="partner_readonly or state in ['cancel', 'done']"
                 />
                 <field
                     name="stock_move_id"
                     domain="[
-                        ('picking_partner_id', 'in', [partner_id, False]),
+                        ('partner_id', 'in', [partner_id, False]),
                         ('product_id', '=', product_id),
                         ('state', '=', 'done'),
                         ('logistics_schedule_id', '=', False),
@@ -93,36 +95,56 @@
                     ]"
                     context="{'logistics_schedule_view': True}"
                     options="{'no_create_edit': True, 'no_create': True}"
+                    readonly="state in ['draft', 'cancel', 'done']"
                     string="Mov."
                     optional="show"
                 />
-                <field name="transport_type" string="Type" optional="show" />
-                <field name="product_id" optional="show" attrs="{'readonly': [('origin', '!=', False)]}"/>
-                <field name="product_uom_qty" string="Qty" optional="show" />
+                <field name="transport_type"
+                    string="Type"
+                    optional="show"
+                    readonly="state in ['ready', 'cancel', 'done']"
+                />
+                <field name="product_id"
+                    optional="show"
+                    readonly="state in ['cancel', 'done']"
+                />
+                <field name="product_uom_qty"
+                    string="Qty"
+                    optional="show"
+                    readonly="state in ['cancel', 'done']"
+                />
                 <field
                     name="product_uom"
                     optional="hide"
                     force_save="1"
                     groups="uom.group_uom"
                 />
-                <field name="scheduled_load_date" string="Sched. Date" optional="show" />
-                <field name="commitment_date" optional="show" />
+                <field name="scheduled_load_date"
+                    string="Sched. Date"
+                    optional="show"
+                    readonly="state in ['ready', 'cancel', 'done']"
+                />
+                <field name="commitment_date"
+                    optional="show"
+                    readonly="state in ['cancel', 'done']"
+                />
                 <field
                     name="commitment_date_hour"
                     widget="float_time"
                     optional="show"
+                    readonly="state in ['draft', 'cancel', 'done']"
                 />
-                <field name="effective_date" optional="show"/>
-                <field name="rescheduled_date" optional="show"/>
-                <field name="currency_id" invisible="1"/>
-                <field name="logistics_price_unit_type" string="Pr. T." optional="show" />
-                <field name="logistics_price_unit" widget="monetary" string="Ord. Pr." optional="show"/>
-                <field name="logistics_price_unit_done" widget="monetary" string="Conf. Pr." optional="show"/>
-                <field name="carrier_id" string="Carr." optional="show"/>
-                <field name="effective_carrier_id" string="Eff. Carr." optional="show" />  
-                <field name="license_plate_1" string="L.P. 1" optional="show"/>
-                <field name="license_plate_2" string="L.P. 2" optional="show" />
-                <field name="license_plate_3" string="L.P. 3" optional="show" />
+                <field name="effective_date" optional="show" readonly="state in ['draft', 'cancel', 'done']"/>
+                <field name="rescheduled_date" optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="logistics_price_unit_type" string="Pr. T." optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="logistics_price_unit" widget="monetary" string="Ord. Pr." optional="show" readonly="state in ['ready', 'cancel', 'done']"/>
+                <field name="logistics_price_unit_done" widget="monetary" string="Conf. Pr." optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="carrier_id" string="Carr." optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="effective_carrier_id" string="Eff. Carr." optional="show" readonly="state in ['cancel', 'done']"/>  
+                <field name="license_plate_1" string="L.P. 1" optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="license_plate_2" string="L.P. 2" optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="license_plate_3" string="L.P. 3" optional="show" readonly="state in ['cancel', 'done']"/>
                 <field name="state" readonly="1" string="St." optional="show" />
                 <field
                     name="schedule_finished"
@@ -130,6 +152,7 @@
                     widget="boolean_toggle"
                     string="Sch. Fi."
                     optional="show"
+                    readonly="state in ['draft', 'cancel', 'done']"
                 />
                 <field name="note" optional="show" />
             </tree>
@@ -192,7 +215,7 @@
                 <attribute name="string">Sched. Down.</attribute>
             </field>
             <field name="commitment_date_hour" position="attributes">
-                <attribute name="invisible">1</attribute>
+                <attribute name="column_invisible">1</attribute>
             </field>
             <field name="effective_date" position="attributes">
                 <attribute name="string">Delivery Date</attribute>
@@ -201,7 +224,7 @@
                 <attribute name="string">Customer</attribute>
             </field>
             <field name="commitment_date" position="after">
-                <field name="etd_date" string="ETD" optional="show" attrs="{'invisible': [('transport_type', '!=', 'ocean-going')]}"/>
+                <field name="etd_date" string="ETD" optional="show" invisible="transport_type != 'ocean-going'"/>
             </field>
         </field>
     </record>
@@ -212,7 +235,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="origin"/>
-                <field name="destination_partner_id"/>                
+                <field name="destination_partner_id"/>
                 <field name="picking_id"/>
                 <field name="stock_move_id" string="Ticket/Mov."/>
                 <field name="partner_id"/>
@@ -266,14 +289,14 @@
                         name="%(action_logistics_schedule_draft)d"
                         type="action"
                         string="Mark as Draft"
-                        attrs="{'invisible': [('state', '!=', 'cancel')]}"
+                        invisible="state != 'cancel'"
                         icon="fa-pencil"
                     />
                     <button
                         name="%(action_logistics_schedule_ready)d"
                         type="action"
                         string="Mark as Ready"
-                        attrs="{'invisible': [('state', '!=', 'draft')]}"
+                        invisible="state != 'draft'"
                         context="{'ls_check_req_fields': True}"
                         icon="fa-mail-forward"
                     />
@@ -282,16 +305,16 @@
                         name="%(action_logistics_schedule_done)d"
                         type="action"
                         string="Mark as Done"
-                        attrs="{'invisible': [('can_set_to_done', '=', False)]}"
+                        invisible="not can_set_to_done"
                         icon="fa-check"
-                    />                    
+                    />
                     <button
                         name="%(action_logistics_schedule_cancel)d"
                         type="action"
                         string="Cancel"
                         confirm="Are you sure you want to cancel this record?"
                         context="{'logistic_schedule_cancel_skip_confirm': True}"
-                        attrs="{'invisible': [('state', 'not in', ['draft', 'ready', 'done'])]}"
+                        invisible="state not in ['draft', 'ready', 'done']"
                         icon="fa-ban"
                     />
                     <button
@@ -299,7 +322,7 @@
                         type="action"
                         string="Duplicate"
                         confirm="Are you sure you want to duplicate this record?"
-                        attrs="{'invisible': [('origin', '!=', False)]}"
+                        invisible="origin"
                         icon="fa-paste"
                     />
                     <field name="state" widget="statusbar" statusbar_visible="draft,ready,done,cancel" readonly="1"/>
@@ -309,13 +332,13 @@
                         <group>
                             <field
                                 name="origin"
-                                attrs="{'invisible': [('origin', '=', False)]}"
+                                invisible="not origin"
                             />
                             <field name="picking_id" />
                             <field
                                 name="stock_move_id"
                                 domain="[
-                                    ('picking_partner_id', 'in', [partner_id, False]),
+                                    ('partner_id', 'in', [partner_id, False]),
                                     ('product_id', '=', product_id),
                                     ('state', '=', 'done'),
                                     ('logistics_schedule_id', '=', False),
@@ -323,53 +346,55 @@
                                 ]"
                                 context="{'logistics_schedule_view': True}"
                                 options="{'no_create_edit': True, 'no_create': True}"
+                                readonly="state in ['draft', 'cancel', 'done']"
                             />
                             <field name="partner_readonly" invisible="1" />
                             <field
                                 name="partner_id"
-                                attrs="{'readonly': [('partner_readonly', '=', True)]}"
+                                readonly="partner_readonly or state in ['cancel', 'done']"
                             />
-                            <field name="destination_partner_id" />
+                            <field name="destination_partner_id" readonly="state in ['cancel', 'done']"/>
                         </group>
                         <group>
-                            <field name="scheduled_load_date" string="Sched. Date"/>
-                            <field name="commitment_date" />
-                            <field name="effective_date" />
-                            <field name="rescheduled_date" />
+                            <field name="scheduled_load_date" string="Sched. Date" readonly="state in ['ready', 'cancel', 'done']"/>
+                            <field name="commitment_date" readonly="state in ['cancel', 'done']"/>
+                            <field name="effective_date" readonly="state in ['draft', 'cancel', 'done']"/>
+                            <field name="rescheduled_date" readonly="state in ['cancel', 'done']"/>
                         </group>
                         <group>
-                            <field name="transport_type" />
-                            <field name="carrier_id" />
-                            <field name="effective_carrier_id" />
-                            <field name="license_plate_1" />
-                            <field name="license_plate_2" />
-                            <field name="license_plate_3" />
+                            <field name="transport_type" readonly="state in ['ready', 'cancel', 'done']"/>
+                            <field name="carrier_id" readonly="state in ['cancel', 'done']"/>
+                            <field name="effective_carrier_id" readonly="state in ['cancel', 'done']"/>
+                            <field name="license_plate_1" readonly="state in ['cancel', 'done']"/>
+                            <field name="license_plate_2" readonly="state in ['cancel', 'done']"/>
+                            <field name="license_plate_3" readonly="state in ['cancel', 'done']"/>
                             <field
                                 name="schedule_finished"
                                 string="Mark as finished"
                                 widget="boolean_toggle"
+                                readonly="state in ['draft', 'cancel', 'done']"
                             />
                         </group>
                         <group>
                             <field name="currency_id" invisible="1"/>
-                            <field name="product_id" attrs="{'readonly': [('origin', '!=', False)]}"/>
-                            <label for="product_uom_qty"/>
+                            <field name="product_id" readonly="origin or state in ['cancel', 'done']"/>
+                            <label for="product_uom_qty" readonly="state in ['cancel', 'done']"/>
                             <div class="o_row no-gutters d-flex">
                                 <div class="col">
-                                    <field name="product_uom_qty" class="mr-1" />
+                                    <field name="product_uom_qty" class="mr-1" readonly="state in ['cancel', 'done']"/>
                                     <field
                                         name="product_uom"
                                         force_save="1"
                                         groups="uom.group_uom"
-                                    />            
+                                    />
                                 </div>
                             </div>
-                            <label for="logistics_price_unit"/>
+                            <label for="logistics_price_unit" readonly="state in ['ready', 'cancel', 'done']"/>
                             <div class="o_row no-gutters d-flex">
                                 <div class="col">
-                                    <field name="logistics_price_unit_done" class="mr-1" widget="monetary" /> /
-                                    <field name="logistics_price_unit" class="mr-1" widget="monetary" />
-                                    <field name="logistics_price_unit_type" />
+                                    <field name="logistics_price_unit_done" class="mr-1" widget="monetary" readonly="state in ['cancel', 'done']"/> /
+                                    <field name="logistics_price_unit" class="mr-1" widget="monetary" readonly="state in ['ready', 'cancel', 'done']"/>
+                                    <field name="logistics_price_unit_type" readonly="state in ['cancel', 'done']"/>
                                 </div>
                             </div>
                         </group>
@@ -436,7 +461,7 @@
                 <attribute name="string">Customer</attribute>
             </field>
             <field name="commitment_date" position="after">
-                <field name="etd_date" string="ETD" attrs="{'invisible': [('transport_type', '!=', 'ocean-going')]}"/>
+                <field name="etd_date" string="ETD" invisible="transport_type != 'ocean-going'"/>
             </field>
         </field>
     </record>
