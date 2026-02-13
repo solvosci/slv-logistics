@@ -13,7 +13,6 @@ class LogisticsSchedule(models.Model):
     incoterm_id = fields.Many2one(
         comodel_name="account.incoterms",
         readonly=True,
-        states={"draft": [("readonly", False)]},
     )
     account_move_line_id = fields.Many2one(
         'account.move.line',
