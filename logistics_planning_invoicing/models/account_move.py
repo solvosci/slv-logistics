@@ -23,17 +23,17 @@ class AccountMove(models.Model):
         aml_dict_list = self.logistics_schedule_ids._prepare_ls_account_move_lines(self)
         for aml_dict in aml_dict_list:
             new_line = new_lines.new(aml_dict)
-            new_line.account_id = new_line._get_computed_account()
             taxes = new_line._get_computed_taxes()
             if taxes and self.fiscal_position_id:
-                taxes = self.fiscal_position_id.map_tax(taxes, partner=self.partner_id)
-            new_line.tax_ids = taxes            
-            new_line._onchange_price_subtotal()
+                # FIXME will this work (, partner=self.partner_id REMOVED)
+                taxes = self.fiscal_position_id.map_tax(taxes)
+            new_line.tax_ids = taxes
+            new_line._compute_totals()
             new_lines += new_line
-        new_lines._onchange_mark_recompute_taxes()
+        new_lines._compute_tax_ids()
 
-        self._onchange_currency()
-        self.invoice_partner_bank_id = self.bank_partner_id.bank_ids and self.bank_partner_id.bank_ids[0]
+        self._compute_currency_id()
+        self.partner_bank_id = self.bank_partner_id.bank_ids and self.bank_partner_id.bank_ids[0]
 
     def _compute_logistics_schedule_count(self):
         for record in self:
@@ -47,10 +47,6 @@ class AccountMove(models.Model):
         self._ls_secure_unlink()
         super().button_cancel()
 
-    def unlink(self):
-        # TODO prevent user with warning?
-        self._ls_secure_unlink()
-        return super().unlink()
-
+    @api.ondelete(at_uninstall=True)
     def _ls_secure_unlink(self):
         self.invoice_line_ids._ls_secure_unlink()

@@ -22,10 +22,9 @@ class LogisticsScheduleAccountMove(models.TransientModel):
     )
 
     def create_invoice(self):
-        action = self.env.ref('account.action_move_in_invoice_type')
-        result = action.read()[0]
-        result['context'] = self.logistics_schedule_ids._prepare_ls_account_move()
-        result['context'].update({
+        action = self.env["ir.actions.act_window"]._for_xml_id('account.action_move_in_invoice_type')
+        action['context'] = self.logistics_schedule_ids._prepare_ls_account_move()
+        action['context'].update({
             "default_partner_id": self.carrier_id.id,
             "default_journal_id": self.journal_id.id,
             "default_company_id": self.company_id.id,
@@ -34,8 +33,8 @@ class LogisticsScheduleAccountMove(models.TransientModel):
         })
         res = self.env.ref('account.view_move_form', False)
         form_view = [(res and res.id or False, 'form')]
-        result['views'] = form_view
+        action['views'] = form_view
 
-        result['context']['logistics_schedule_ids'] = self.logistics_schedule_ids.ids
+        action['context']['logistics_schedule_ids'] = self.logistics_schedule_ids.ids
 
-        return result
+        return action

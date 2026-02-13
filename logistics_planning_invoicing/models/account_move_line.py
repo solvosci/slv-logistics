@@ -2,6 +2,7 @@
 # License LGPL-3.0 (https://www.gnu.org/licenses/lgpl-3.0.html)
 
 from odoo import models, fields, api
+from odoo.osv import expression
 
 
 class AccountMoveLine(models.Model):
@@ -22,7 +23,24 @@ class AccountMoveLine(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        lines = super().create(vals_list)
+        filtered_vals_list = []
+        for vals in vals_list:
+            # TODO we can receive values with this corner case situation:
+            # * Has NO product
+            # * Has logistics schedules linked
+            # Such combination is disallowed and only could come from this addon
+            # (not other invoicing process can generate it)
+            # For such cases we should ignore values and skip line addition
+            if not (
+                (
+                    vals.get('logistics_schedule_id')
+                    or vals.get('agg_logistics_schedule_ids')
+                )
+                and not vals.get('product_id')
+            ):
+                filtered_vals_list.append(vals)
+
+        lines = super().create(filtered_vals_list)
         for line in lines:
             all_ls_ids = line._get_all_logistics_schedule_ids().sudo()
             if all_ls_ids:
@@ -45,12 +63,8 @@ class AccountMoveLine(models.Model):
                 self.logistics_schedule_id.account_move_line_id = False
         return super().write(values)
 
-    def unlink(self):
-        # TODO prevent user with warning?
-        self._ls_secure_unlink()
-        return super().unlink()
-
-    def _ls_secure_unlink(self):
+    @api.ondelete(at_uninstall=True)
+    def _ls_secure_unlink(self):        
         ls_ids = self.sudo()._get_all_logistics_schedule_ids()
         if ls_ids:
             ls_ids.account_move_line_id.write({
@@ -63,21 +77,36 @@ class AccountMoveLine(models.Model):
             })
 
     @api.model
-    def name_search(self, name="", args=None, operator="ilike", limit=100):
-        context = self.env.context
-        if context.get('logistics_planning_invoicing_existing', False):
-            domain = args or []
-            domain += [("name", operator, name)]
-            return self.search(domain).name_get()
+    def _name_search(self, name, domain=None, operator="ilike", limit=None, order=None):
+        if self.env.context.get("logistics_planning_invoicing_existing", False) and name:
+            domain = domain or []
+            extra_domain = [
+                ("name", operator, name),
+            ]
+            rec_ids = self._search(
+                expression.AND([extra_domain, domain]), limit=limit, order=order,
+            )
+            records = self.browse(rec_ids).sorted(
+                key=lambda x: (x.name or "")
+            )
+            return records.ids
 
-        return super().name_search(name=name, args=args, operator=operator, limit=limit)
+        return super()._name_search(
+            name=name, domain=domain, operator=operator, limit=limit, order=order
+        )       
 
-    def name_get(self):
-        res = []
-        context = self.env.context
-        if context.get('logistics_planning_invoicing_existing', False):
+    @api.depends(
+        "product_id.name",
+        "move_id.name",
+        "name",
+        "price_unit",
+        "company_currency_id.symbol",
+        "quantity",
+        "product_uom_id.name",
+    )
+    def _compute_display_name(self):
+        if self.env.context.get('logistics_planning_invoicing_existing', False):
             for record in self:
-                name = f"[{record.product_id.name}] {record.move_id.name}({record.name}) - {record.price_unit} {record.company_currency_id.symbol} ({record.quantity} {record.product_uom_id.name})"
-                res.append((record.id, name))
-            return res
-        return super().name_get()
+                record.display_name = f"[{record.product_id.name}] {record.move_id.name}({record.name}) - {record.price_unit} {record.company_currency_id.symbol} ({record.quantity} {record.product_uom_id.name})"
+        else:
+            super()._compute_display_name()
