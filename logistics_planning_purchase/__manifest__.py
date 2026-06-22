@@ -7,14 +7,15 @@
     ''',
     'author': 'Solvos',
     'license': 'LGPL-3',
-    'version': '13.0.1.7.1',
+    'version': '17.0.1.0.0',
     'category': 'stock',
-    'website': 'https://github.com/solvosci/slv-stock',
+    'website': 'https://github.com/solvosci/slv-logistics',
     "depends": [
         "purchase_stock",
         "logistics_planning_invoicing",
     ],
     "data": [
+        "security/ir.model.access.csv",
         "views/logistics_schedule_views.xml",
         "views/purchase_order_views.xml",
         "views/stock_picking_type_views.xml",
