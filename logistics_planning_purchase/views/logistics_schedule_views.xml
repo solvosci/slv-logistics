@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="logistics_schedule_view_search" model="ir.ui.view">
         <field name="name">logistics.schedule.search (in logistics_planning_purchase)</field>
         <field name="model">logistics.schedule</field>
         <field name="inherit_id" ref="logistics_planning_base.logistics_schedule_view_search"/>
-        <field name="groups_id" eval="[(4, ref('purchase.group_purchase_user'))]" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='product_id']" position="after">
-                <field name="purchase_order_id" />
+                <field name="purchase_order_id" groups="purchase.group_purchase_user"/>
             </xpath>
         </field>
     </record>
@@ -34,12 +32,12 @@
         <field name="name">logistics.schedule.form purchase (in logistics_planning_purchase)</field>
         <field name="model">logistics.schedule</field>
         <field name="inherit_id" ref="logistics_planning_base.logistics_schedule_view_form"/>
-        <field name="groups_id" eval="[(4, ref('purchase.group_purchase_user'))]" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="after">
                 <field
                     name="purchase_order_id"
-                    attrs="{'invisible': [('purchase_order_id', '=', False)]}"
+                    invisible="not purchase_order_id"
+                    groups="purchase.group_purchase_user"
                 />
             </xpath>
         </field>
@@ -51,7 +49,7 @@
         <field name="inherit_id" ref="logistics_planning_base.logistics_schedule_view_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="before">
-                <field name="purchase_order_line_id" invisible="1" />
+                <field name="purchase_order_line_id" column_invisible="1" />
             </xpath>
             <field name="stock_move_id" position="attributes">
                 <attribute
@@ -70,10 +68,9 @@
             name="inherit_id"
             ref="logistics_planning_purchase.logistics_schedule_view_tree"
         />
-        <field name="groups_id" eval="[(4, ref('purchase.group_purchase_user'))]" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="before">
-                <field name="purchase_order_id" optional="hide" />
+                <field name="purchase_order_id" optional="hide" groups="purchase.group_purchase_user"/>
             </xpath>
         </field>
     </record>

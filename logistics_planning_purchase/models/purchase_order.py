@@ -27,11 +27,6 @@ class PurchaseOrder(models.Model):
         string="Disable logistics schedules creation",
         default=False,
         copy=False,
-        readonly=False,        
-        states={
-            "cancel": [("readonly", True)],
-            "done": [("readonly", True)],
-        },
         tracking=True,
     )
     logistics_schedule_one_line = fields.Boolean(
@@ -82,7 +77,7 @@ class PurchaseOrder(models.Model):
         # TODO move every method to logistics_base_invoicing
         self.ensure_one()
         action = self.env.ref("account.action_move_in_invoice_type")
-        result = action.read()[0]
+        result = action._for_xml_id()
         result["context"] = {
             "default_type": "in_invoice",
             "default_company_id": self.company_id.id,

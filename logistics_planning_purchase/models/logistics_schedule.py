@@ -9,7 +9,6 @@ class LogisticsSchedule(models.Model):
 
     purchase_order_line_id = fields.Many2one(
         comodel_name="purchase.order.line",
-        readonly=True,
         copy=False,
     )
     purchase_order_id = fields.Many2one(
@@ -20,9 +19,9 @@ class LogisticsSchedule(models.Model):
     def _prepare_ls_account_move_line(self, move_id):
         values = super()._prepare_ls_account_move_line(move_id)
         ls_id = self.browse(self.id.origin)
-        if ls_id.purchase_order_line_id and ls_id.purchase_order_line_id.account_analytic_id:
+        if ls_id.purchase_order_line_id and ls_id.purchase_order_line_id.distribution_analytic_account_ids:
             values.update({
-                "analytic_account_id": ls_id.purchase_order_line_id.account_analytic_id.id,
+                "analytic_account_id": ls_id.purchase_order_line_id.distribution_analytic_account_ids.id,
             })
         return values
 

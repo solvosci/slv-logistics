@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="purchase_order_view_form_inherit_all" model="ir.ui.view">
         <field name="name">purchase.order.form all (in logistics_planning_purchase)</field>
@@ -11,7 +10,7 @@
                     type="object"
                     class="oe_stat_button"
                     icon="fa-pencil-square-o"
-                    attrs="{'invisible': [('logistics_account_move_count', '=', 0)]}"
+                    invisible="logistics_account_move_count == 0"
                 >
                     <field
                         name="logistics_account_move_count"
@@ -26,25 +25,24 @@
                     groups="base.group_no_one"
                 />
                 <field
+                    name="logistics_schedule_skip"
+                    invisible="1"
+                />
+                <field
                     name="logistics_schedule_disabled"
                     widget="boolean_toggle"
                     string="Disable log. sched."
-                    attrs="{'invisible': [('logistics_schedule_skip','=',True)]}"
+                    readonly="state in ['done', 'cancel']"
+                    invisible="logistics_schedule_skip"
                 />
                 <field
                     name="logistics_schedule_one_line"
                     widget="boolean_toggle"
                     string="Only sched. for 1 line"
-                    attrs="{
-                        'invisible': [
-                            '|',
-                            ('logistics_schedule_disabled','=',True),
-                            ('logistics_schedule_skip','=',True),
-                        ],
-                        'readonly': [('state', 'in', ['purchase','done','cancel'])],
-                    }"
+                    invisible="logistics_schedule_disabled or logistics_schedule_skip"
+                    readonly="state in ['purchase','done','cancel']"
                 />
-            </xpath>            
+            </xpath>
             <xpath
                 expr="//field[@name='order_line']/tree/field[@name='sequence']"
                 position="after"
@@ -56,33 +54,25 @@
                     class="p-0"
                     type="object"
                     title="Add schedule(s)"
-                    attrs="{'invisible': [
-                        '|',
-                        ('state', 'in', ['draft', 'sent', 'to approve']),
-                        ('ls_schedule_allowed', '=', False),
-                    ]}"
+                    invisible="state in ['draft', 'sent', 'to approve'] or not ls_schedule_allowed"
                 />
             </xpath>
             <xpath
                 expr="//field[@name='order_line']/form//field[@name='taxes_id']"
                 position="before"
             >
-                <field name="logistics_schedule_skip" invisible="1" />                
+                <field name="logistics_schedule_skip" invisible="1" />
                 <field
                     name="logistics_price_unit_type"
-                    attrs="{'invisible': [('logistics_schedule_skip', '=', True)]}"
+                    invisible="logistics_schedule_skip"
                 />
                 <field
                     name="logistics_price_unit" widget="monetary"
-                    attrs="{'invisible': [('logistics_schedule_skip', '=', True)]}"
+                    invisible="logistics_schedule_skip"
                 />
                 <field
                     name="logistics_schedule_init"
-                    attrs="{'invisible': [
-                        '|',
-                        ('logistics_schedule_skip', '=', True),
-                        ('state', 'in', ['purchase', 'done', 'cancel']),
-                    ]}"
+                    invisible="logistics_schedule_skip or state in ['purchase', 'done', 'cancel']"
                 />
             </xpath>
             <xpath
@@ -91,31 +81,25 @@
             >
                 <field
                     name="logistics_price_unit_type"
-                    attrs="{'column_invisible': [('parent.logistics_schedule_skip', '=', True)]}"
+                    column_invisible="parent.logistics_schedule_skip"
                     optional="hide"
                 />
                 <field
                     name="logistics_price_unit"
-                    attrs="{'column_invisible': [('parent.logistics_schedule_skip', '=', True)]}"
-                    optional="hide" 
+                    column_invisible="parent.logistics_schedule_skip"
+                    optional="hide"
                     widget="monetary"
                 />
                 <field
                     name="logistics_schedule_init"
-                    optional="show" 
-                    attrs="{
-                        'column_invisible': [
-                            '|',
-                            ('parent.logistics_schedule_skip', '=', True),
-                            ('parent.state', 'in', ['purchase', 'done', 'cancel']),
-                        ],
-                    }"
+                    optional="show"
+                    column_invisible="parent.logistics_schedule_skip or parent.state in ['purchase', 'done', 'cancel']"
                 />
             </xpath>
             <field name="incoterm_id" position="after">
                 <field
                     name="ls_transport_type"
-                    attrs="{'invisible': [('logistics_schedule_skip', '=', True)]}"
+                    column_invisible="logistics_schedule_skip"
                 />
             </field>
         </field>
@@ -125,7 +109,6 @@
         <field name="name">purchase.order.form schedules (in logistics_planning_purchase)</field>
         <field name="model">purchase.order</field>
         <field name="inherit_id" ref="purchase_stock.purchase_order_view_form_inherit"/>
-        <field name="groups_id" eval="[(4, ref('logistics_planning_base.group_lp_user'))]" />
         <field name="arch" type="xml">
             <xpath
                 expr="//page[@name='purchase_delivery_invoice']"
@@ -133,7 +116,7 @@
             >
                 <page
                     name="logistics_schedules" string="Logistics Schedules"
-                    attrs="{'invisible': [('logistics_schedule_ids', '=', [])]}"
+                    invisible="logistics_schedule_ids == []" groups="logistics_planning_base.group_lp_user"
                 >
                     <field name="logistics_schedule_ids">
                         <tree
@@ -147,7 +130,7 @@
                             <field name="product_uom_qty" />
                             <field name="scheduled_load_date" />
                             <field name="commitment_date" />
-                            <field name="currency_id" invisible="1"/>
+                            <field name="currency_id" column_invisible="1"/>
                             <field name="logistics_price_unit" widget="monetary" />
                             <field name="logistics_price_unit_done" widget="monetary" />
                             <field name="carrier_id" />
