@@ -19,11 +19,6 @@ class SaleOrder(models.Model):
         string="Disable logistics schedules creation",
         default=False,
         copy=False,
-        readonly=False,        
-        states={
-            "cancel": [("readonly", True)],
-            "done": [("readonly", True)],
-        },
         tracking=True,
     )
     logistics_account_move_ids = fields.Many2many(

@@ -9,7 +9,6 @@ class LogisticsSchedule(models.Model):
 
     sale_order_line_id = fields.Many2one(
         comodel_name="sale.order.line",
-        readonly=True,
         copy=False,
     )
     sale_order_id = fields.Many2one(

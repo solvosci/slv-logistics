@@ -14,14 +14,12 @@ class LogisticsScheduleSaleAdd(models.TransientModel):
     sale_line_id = fields.Many2one(
         comodel_name="sale.order.line",
         required=True,
-        readonly=True,
     )
     product_id = fields.Many2one(
         related="sale_line_id.product_id",
     )
     ls_count = fields.Integer(
         required=True,
-        readonly=True,
         string="Current schedule count",
     )
     ls_new = fields.Integer(

@@ -7,17 +7,18 @@
     ''',
     'author': 'Solvos',
     'license': 'LGPL-3',
-    'version': '13.0.1.8.0',
+    'version': '17.0.1.0.0',
     'category': 'stock',
-    'website': 'https://github.com/solvosci/slv-stock',
-    "depends": [
-        "sale_stock",
-        "logistics_planning_invoicing",
+    'website': 'https://github.com/solvosci/slv-logistics',
+    'depends': [
+        'sale_stock',
+        'logistics_planning_invoicing',
     ],
-    "data": [
-        "views/logistics_schedule_views.xml",
-        "views/sale_order_views.xml",
-        "views/stock_warehouse_views.xml",
-        "wizards/logistics_schedule_sale_add_wizard_views.xml",
+    'data': [
+        'security/ir.model.access.csv',
+        'views/logistics_schedule_views.xml',
+        'views/sale_order_views.xml',
+        'views/stock_warehouse_views.xml',
+        'wizards/logistics_schedule_sale_add_wizard_views.xml',
     ],
 }
