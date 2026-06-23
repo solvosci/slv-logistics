@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_logistics_schedule_sale_add_wizard,logistics.schedule.sale.add.wizard user,model_logistics_schedule_sale_add_wizard,logistics_planning_base.group_lp_user,1,1,1,1
