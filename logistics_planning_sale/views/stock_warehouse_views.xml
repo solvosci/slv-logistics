@@ -1,13 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="stock_warehouse_view_search" model="ir.ui.view">
         <field name="name">stock.warehouse.search (in logistics_planning_sale)</field>
         <field name="model">stock.warehouse</field>
         <field name="inherit_id" ref="stock.stock_warehouse_view_search"/>
-        <field
-            name="groups_id"
-            eval="[(4, ref('logistics_planning_base.group_lp_manager'))]"
-        />
         <field name="arch" type="xml">
             <filter name="inactive" position="after">
                 <separator />
@@ -15,6 +10,7 @@
                     string="LS Disabled by default"
                     name="filter_ls_so_disabled_default"
                     domain="[('ls_so_create_disable_default','=',True)]"
+                    groups="logistics_planning_base.group_lp_manager"
                 />
             </filter>
         </field>
