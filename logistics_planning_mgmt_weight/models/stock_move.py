@@ -37,7 +37,7 @@ class StockMove(models.Model):
     @api.onchange("aux_picking_partner_id")
     def _onchange_aux_picking_partner_id(self):
         if self.aux_picking_partner_id:
-            self.picking_partner_id = self.aux_picking_partner_id
+            self.partner_id = self.aux_picking_partner_id
 
     def _prepare_name_get(self):
         name = super()._prepare_name_get()
@@ -52,10 +52,10 @@ class StockMove(models.Model):
             name = "%s [%s]" % (name, self_sudo.picking_vehicle_id.name)
         return name
 
-    @api.model
-    def create(self, values):
-        res = super().create(values)
-        if res.logistics_schedule_id:
+    @api.model_create_multi
+    def create(self, vals_list):
+        moves = super().create(vals_list)
+        for res in moves.filtered(lambda x: x.logistics_schedule_id):
             ls = res.logistics_schedule_id.sudo()
             if not ls.stock_move_id:
                 ls.stock_move_id = res.id
@@ -63,14 +63,13 @@ class StockMove(models.Model):
             else:
                 #ls.extra_stock_move_ids = [(4, res.id)]
                 ls.extra_stock_move_ids += res
-        return res
+        return moves
 
-    def unlink(self):
+    @api.ondelete(at_uninstall=False)
+    def _check_have_logistics_schedule(self):
         logisted_move_ids = self.filtered(lambda x: x.logistics_schedule_id)
         if logisted_move_ids:
             move_ids = ', '.join(map(lambda x: x.picking_id.name, logisted_move_ids))
             raise ValidationError(
                 _("You cannot delete the following weigh-in tickets because they have an assigned logistic schedule: %s") % move_ids
             )
-
-        return super(StockMove, self).unlink()

@@ -12,25 +12,14 @@ class LogisticsSchedule(models.Model):
 
     supply_condition_id = fields.Many2one(
         comodel_name="supply.condition",
-        readonly=True,
-        states={"draft": [("readonly", False)]},
     )
     extra_stock_move_ids = fields.Many2many(
         comodel_name="stock.move",
-        states={
-            "draft": [("readonly", True)],
-            "cancel": [("readonly", True)],
-            "done": [("readonly", True)],
-        },
         copy=False,
         string="Other tickets",
     )
     vehicle_type_id = fields.Many2one(
         'vehicle.type',
-        states={
-            "cancel": [("readonly", True)],
-            "done": [("readonly", True)]
-        }
     )
 
     @api.depends("stock_move_id.net_weight", "extra_stock_move_ids.net_weight")
@@ -89,11 +78,10 @@ class LogisticsSchedule(models.Model):
         return fields
 
     def action_logistics_schedule_create_input_ticket(self):
-        action = self.env.ref(
+        action = self.env["ir.actions.act_window"]._for_xml_id(
             "stock_picking_mgmt_weight.stock_move_weights_in_progress"
         )
-        result = action.read()[0]
-        ctx = ast.literal_eval(result.get("context"))
+        ctx = ast.literal_eval(action.get("context"))
         # TODO picking_partner_id and picking_vehicle_id propagation don't work (as related stored?)
         # TODO incomplete ticket problem
         ctx.update({
@@ -106,15 +94,15 @@ class LogisticsSchedule(models.Model):
                 ).id or False
             ),
         })
-        result["context"] = ctx
+        action["context"] = ctx
         res = self.env.ref(
             "stock_picking_mgmt_weight.stock_move_mgmt_weight_frontend_weight_form_view",
             False
         )
         form_view = [(res and res.id or False, "form")]
-        result["views"] = form_view
+        action["views"] = form_view
 
-        return result
+        return action
     
     def action_logistics_schedule_finish(self):
         # TODO confirm wizard?
