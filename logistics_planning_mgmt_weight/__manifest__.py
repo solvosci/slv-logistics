@@ -7,19 +7,19 @@
     ''',
     'author': 'Solvos',
     'license': 'LGPL-3',
-    'version': '13.0.1.10.0',
+    'version': '17.0.1.0.0',
     'category': 'stock',
-    'website': 'https://github.com/solvosci/slv-stock',
-    "depends": [
-        "logistics_planning_purchase",
-        "logistics_planning_sale",
-        "stock_picking_mgmt_weight",
+    'website': 'https://github.com/solvosci/slv-logistics',
+    'depends': [
+        'logistics_planning_purchase',
+        'logistics_planning_sale',
+        'stock_picking_mgmt_weight',
     ],
-    "data": [
-        "views/vehicle_type_views.xml",
-        "views/sale_order_line_views.xml",
-        "views/stock_move_views.xml",
-        "views/logistics_schedule_views.xml",
-        "views/logistics_schedule_menu.xml",
+    'data': [
+        'views/vehicle_type_views.xml',
+        'views/sale_order_line_views.xml',
+        'views/stock_move_views.xml',
+        'views/logistics_schedule_views.xml',
+        'views/logistics_schedule_menu.xml',
     ],
 }

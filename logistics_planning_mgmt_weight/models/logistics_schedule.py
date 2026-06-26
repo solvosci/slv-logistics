@@ -12,25 +12,14 @@ class LogisticsSchedule(models.Model):
 
     supply_condition_id = fields.Many2one(
         comodel_name="supply.condition",
-        readonly=True,
-        states={"draft": [("readonly", False)]},
     )
     extra_stock_move_ids = fields.Many2many(
         comodel_name="stock.move",
-        states={
-            "draft": [("readonly", True)],
-            "cancel": [("readonly", True)],
-            "done": [("readonly", True)],
-        },
         copy=False,
         string="Other tickets",
     )
     vehicle_type_id = fields.Many2one(
         'vehicle.type',
-        states={
-            "cancel": [("readonly", True)],
-            "done": [("readonly", True)]
-        }
     )
 
     @api.depends("stock_move_id.net_weight", "extra_stock_move_ids.net_weight")
