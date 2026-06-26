@@ -7,9 +7,9 @@
     ''',
     'author': 'Solvos',
     'license': 'LGPL-3',
-    'version': '13.0.1.10.0',
+    'version': '17.0.1.0.0',
     'category': 'stock',
-    'website': 'https://github.com/solvosci/slv-stock',
+    'website': 'https://github.com/solvosci/slv-logistics',
     "depends": [
         "logistics_planning_purchase",
         "logistics_planning_sale",
