@@ -44,7 +44,6 @@ class LogisticsSchedule(models.Model):
         ],
     )
     origin = fields.Char(
-        readonly=True,
         copy=False,
         help="""
         Origin document (e.g. purchase order for inputs, sales order for outputs,...)
@@ -68,7 +67,7 @@ class LogisticsSchedule(models.Model):
         domain="[('type', 'in', ['product', 'consu'])]",
     )
     # TODO set as related? Default value?
-    product_uom = fields.Many2one('uom.uom', readonly=True)
+    product_uom = fields.Many2one('uom.uom')
     product_uom_qty = fields.Float(
         digits='Product Unit of Measure',
         string="Quantity",
@@ -148,8 +147,8 @@ class LogisticsSchedule(models.Model):
 
     def _compute_can_set_to_done(self):
         to_done = self.filtered(lambda x: x.state == "ready")
-        to_done.write({"can_set_to_done": True})
-        (self - to_done).write({"can_set_to_done": False})
+        to_done.update({"can_set_to_done": True})
+        (self - to_done).update({"can_set_to_done": False})
 
     def _compute_partner_readonly(self):
         """
@@ -162,8 +161,8 @@ class LogisticsSchedule(models.Model):
         editable_ls_ids = self.filtered(lambda x: (
             not x.origin and not x.stock_move_id
         ))
-        editable_ls_ids.write({"partner_readonly": False})
-        (self - editable_ls_ids).write({"partner_readonly": True})
+        editable_ls_ids.update({"partner_readonly": False})
+        (self - editable_ls_ids).update({"partner_readonly": True})
 
     @api.onchange("partner_id")
     def _onchange_partner_id(self):

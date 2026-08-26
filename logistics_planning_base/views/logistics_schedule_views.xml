@@ -73,7 +73,7 @@
                     type="object"
                     title="Edit"
                 />
-                <field name="origin" optional="show" />
+                <field name="origin" optional="show" readonly="1" />
                 <field name="destination_partner_id"
                     optional="show"
                     readonly="state in ['cancel', 'done']"
@@ -116,6 +116,7 @@
                 <field
                     name="product_uom"
                     optional="hide"
+                    readonly="1"
                     force_save="1"
                     groups="uom.group_uom"
                 />
@@ -148,7 +149,6 @@
                 <field name="state" readonly="1" string="St." optional="show" />
                 <field
                     name="schedule_finished"
-                    nolabel="1"
                     widget="boolean_toggle"
                     string="Sch. Fi."
                     optional="show"
@@ -333,6 +333,7 @@
                             <field
                                 name="origin"
                                 invisible="not origin"
+                                readonly="1"
                             />
                             <field name="picking_id" />
                             <field
@@ -384,6 +385,7 @@
                                     <field name="product_uom_qty" class="mr-1" readonly="state in ['cancel', 'done']"/>
                                     <field
                                         name="product_uom"
+                                        readonly="1"
                                         force_save="1"
                                         groups="uom.group_uom"
                                     />

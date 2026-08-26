@@ -34,7 +34,7 @@ class StockMove(models.Model):
         )
         for move in internal_moves:
             move.warehouse_partner_id = move.location_id.warehouse_id.partner_id
-        (self - internal_moves).write({"warehouse_partner_id": False})
+        (self - internal_moves).update({"warehouse_partner_id": False})
 
     def _prepare_name_get(self):
         return (
