@@ -26,7 +26,8 @@ class AccountMove(models.Model):
             # new_line.account_id = new_line._compute_account_id()
             taxes = new_line._get_computed_taxes()
             if taxes and self.fiscal_position_id:
-                taxes = self.fiscal_position_id.map_tax(taxes, partner=self.partner_id)
+                # TODO will this work (, partner=self.partner_id REMOVED)
+                taxes = self.fiscal_position_id.map_tax(taxes)
             new_line.tax_ids = taxes
             new_line._compute_totals()
             new_lines += new_line

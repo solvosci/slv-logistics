@@ -46,6 +46,7 @@ class AccountMoveLine(models.Model):
         return super().write(values)
 
     def unlink(self):
+        # TODO unlink is now replaced by @api.ondelete
         # TODO prevent user with warning?
         self._ls_secure_unlink()
         return super().unlink()
@@ -64,6 +65,7 @@ class AccountMoveLine(models.Model):
 
     @api.model
     def name_search(self, name="", args=None, operator="ilike", limit=100):
+        # TODO this will fire an error?
         context = self.env.context
         if context.get('logistics_planning_invoicing_existing', False):
             domain = args or []
@@ -73,6 +75,7 @@ class AccountMoveLine(models.Model):
         return super().name_search(name=name, args=args, operator=operator, limit=limit)
 
     def name_get(self):
+        # TODO will this work?
         res = []
         context = self.env.context
         if context.get('logistics_planning_invoicing_existing', False):

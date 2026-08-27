@@ -96,7 +96,7 @@
                     optional="show"
                     groups="account.group_account_invoice"
                 />
-                <field name="is_invoiceable" invisible="1"/>
+                <field name="is_invoiceable" column_invisible="1"/>
                 <field
                     name="is_finished"
                     optional="hide"

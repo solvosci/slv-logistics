@@ -67,7 +67,7 @@ class LogisticsSchedule(models.Model):
         to_not_done = self.filtered(
             lambda x: x.can_set_to_done and x.is_invoiceable
         )
-        to_not_done.write({"can_set_to_done": False})
+        to_not_done.update({"can_set_to_done": False})
 
     @api.onchange("incoterm_id")
     def _onchange_incoterm_id(self):
@@ -177,7 +177,7 @@ class LogisticsSchedule(models.Model):
 
     def _prepare_ls_account_move(self):
         return {
-            'default_type': 'in_invoice',
+            'default_move_type': 'in_invoice',
             'default_company_id': self.company_id.id,
             'default_logistics_schedule_ids': self.ids,
         }
@@ -187,7 +187,7 @@ class LogisticsSchedule(models.Model):
             prut = ls["logistics_price_unit_type"]
             list_key = [
                 ls["product_id"],
-                ls.get("analytic_account_id", 0),
+                ls.get("analytic_account_id", 0),    # TODO replace by analytic_distribution equivalent
                 ls["product_uom_id"],
                 prut,
                 0.0 if prut == "trip" else ls["price_unit"],
