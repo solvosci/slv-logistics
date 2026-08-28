@@ -1,0 +1,277 @@
+# © 2024 Solvos Consultoría Informática (<http://www.solvos.es>)
+# License LGPL-3.0 (https://www.gnu.org/licenses/lgpl-3.0.html)
+
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
+from odoo.tools import float_is_zero
+
+from odoo.addons.logistics_planning_base.models.logistics_schedule import TRANSPORT_TYPE
+
+class LogisticsSchedule(models.Model):
+    _inherit = 'logistics.schedule'
+
+    incoterm_id = fields.Many2one(
+        comodel_name="account.incoterms",
+        readonly=True,
+    )
+    account_move_line_id = fields.Many2one(
+        'account.move.line',
+        readonly=True,
+        copy=False,
+    )
+    account_move_id = fields.Many2one('account.move', related='account_move_line_id.move_id', string='Invoice')
+    is_invoiceable = fields.Boolean(compute='_compute_is_invoiceable', store=True)
+    is_finished = fields.Boolean(copy=False)
+
+    def write(self, values):
+        """
+        When is_finished mark is changed,
+        - when is marked (because a stock move is selected and this LS is
+          automatically marked as finished) => state must be marked as Done
+        - when umarked (manually from Done state) => state have to be moved to ready
+          TODO prevent passing for cancel state?
+        """
+        ret = super().write(values)
+        if (
+            "is_finished" in values
+            and not self.env.context.get("skip_is_finished", False)
+        ):            
+            if values["is_finished"]:
+                self._action_done(skip_can_set_to_done=True)
+            else:
+                to_ready = self.filtered(
+                    lambda x: x.state == "done"
+                ).with_context(skip_is_finished=True)
+                to_ready.with_context(skip_is_finished=True)._action_cancel()
+                to_ready._action_ready()
+        return ret
+
+    @api.onchange("schedule_finished")
+    def _onchange_schedule_finished(self):
+        self.filtered(
+            lambda x: x.schedule_finished and x.incoterm_id.ls_invoice_disabled
+        ).update({"is_finished": True})
+
+    @api.depends("account_move_line_id", "state")
+    def _compute_is_invoiceable(self):
+        for record in self:
+            if record.account_move_line_id or record.state == 'done':
+                record.is_invoiceable = False
+            else:
+                record.is_invoiceable = True
+
+    def _compute_can_set_to_done(self):
+        # Schedules that are initially set to done available, but can be invoiced,
+        #  _must be_ invoiced to be done
+        super()._compute_can_set_to_done()
+        to_not_done = self.filtered(
+            lambda x: x.can_set_to_done and x.is_invoiceable
+        )
+        to_not_done.update({"can_set_to_done": False})
+
+    @api.onchange("incoterm_id")
+    def _onchange_incoterm_id(self):
+        if self.incoterm_id:
+            self.transport_type = self.incoterm_id.ls_sale_transport_type
+
+    def _action_ready_fields_check_req_fields(self):
+        fields = super()._action_ready_fields_check_req_fields()
+        fields.update({
+            "incoterm_id": _("Incoterm"),
+        })
+        return fields
+
+    def _action_cancel(self):
+        to_cancel = super()._action_cancel()
+        not_cancellable = to_cancel.filtered(lambda x: x.account_move_line_id)
+        if not_cancellable:
+            raise ValidationError(_(
+                "There are %d schedule(s) already invoiced,"
+                " please first unselect them"
+            ) % len(not_cancellable))
+        if not self.env.context.get("skip_is_finished", False):
+            to_cancel.filtered(lambda x: x.is_finished).write({
+                "is_finished": False
+            })
+        return to_cancel
+    
+    def _action_sched_finished(self):
+        to_sched_finished = super()._action_sched_finished()
+        to_sched_finished._onchange_schedule_finished()
+        return to_sched_finished
+    
+    # def is_invoiceable(self):
+    #     return not any(
+    #         record.account_move_line_id or record.state == 'done'
+    #         for record in self
+    #     )
+
+    def action_create_invoice_wizard(self):
+        if not self.env.user.has_group("account.group_account_user") and not self.env.user.has_group("account.group_account_manager"):
+            raise ValidationError(_('You need invoice user access to perform this action.'))
+
+        lg_ids_list = self.env.context.get("active_ids") or self.id
+        lg_ids = self.browse(lg_ids_list).filtered(lambda x: x.is_invoiceable)
+        carrier_id = lg_ids.mapped('carrier_id')
+
+        if not lg_ids:
+            raise ValidationError(_('No invoiceable schedules were selected.'))
+        
+        if lg_ids.filtered(lambda x: not x.stock_move_id):
+            raise ValidationError(_("There are at least one schedule without stock move selected"))
+        if lg_ids.filtered(lambda x: not x.carrier_id):
+            raise ValidationError(_("There are at least one schedule without carrier selected"))
+        if lg_ids.filtered(lambda x: not x.schedule_finished):
+            raise ValidationError(_("There are at least one schedule unmarked as finished"))
+        if lg_ids.filtered(lambda x: (
+            float_is_zero(x.product_uom_qty, precision_rounding=x.product_uom.rounding)
+        )):
+            raise ValidationError(_("There are at least one schedule with quantity unset"))
+
+        if len(carrier_id) > 1:
+            raise ValidationError(_('You cannot select multiple schedules with different carriers.'))
+
+        Wizard = self.env['logistics.schedule.account.move.wizard']
+        new = Wizard.create({
+            'logistics_schedule_ids': lg_ids.ids,
+            'carrier_id': carrier_id.id
+        })
+        return {
+            'name': _('Create Invoice'),
+            'res_model': 'logistics.schedule.account.move.wizard',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id': new.id,
+            'target': 'new',
+            'type': 'ir.actions.act_window',
+        }
+
+    def action_add_existing_invoice_wizard(self):
+        ls_ids = self.browse(self._context['active_ids'])
+        if ls_ids.filtered(lambda x: not x.is_invoiceable) or ls_ids.filtered(lambda x: x.account_move_id):
+            raise ValidationError(_('There are at least one schedule already invoiced.'))
+        if ls_ids.filtered(lambda x: not x.carrier_id) or len(ls_ids.mapped('carrier_id')) > 1:
+            raise ValidationError(_('There are different carriers on the selected schedules or there is no carrier.'))
+        if ls_ids.filtered(lambda x: not x.stock_move_id):
+            raise ValidationError(_("There are at least one schedule without stock move selected"))
+        if ls_ids.filtered(lambda x: not x.schedule_finished):
+            raise ValidationError(_("There are at least one schedule unmarked as finished"))
+        if ls_ids.filtered(lambda x: (
+            float_is_zero(x.product_uom_qty, precision_rounding=x.product_uom.rounding)
+        )):
+            raise ValidationError(_("There are at least one schedule with quantity unset"))
+        Wizard = self.env['logistics.schedule.existing.account.move.wizard']
+        new = Wizard.create({
+            'logistics_schedule_ids': [(6, False, self._context['active_ids'])],
+            'carrier_id': ls_ids[0].carrier_id.id
+        })
+        return {
+            'name': _('Add to Existing Invoice'),
+            'res_model': 'logistics.schedule.existing.account.move.wizard',
+            'view_mode': 'form',
+            'view_type': 'form',
+            'res_id': new.id,
+            'target': 'new',
+            'type': 'ir.actions.act_window',
+        }
+
+    def _prepare_ls_account_move(self):
+        return {
+            'default_move_type': 'in_invoice',
+            'default_company_id': self.company_id.id,
+            'default_logistics_schedule_ids': self.ids,
+        }
+
+    def _prepare_ls_account_move_lines(self, move_id):
+        def make_key(ls):
+            prut = ls["logistics_price_unit_type"]
+            list_key = [
+                ls["product_id"],
+                ls.get("analytic_account_id", 0),    # TODO replace by analytic_distribution equivalent
+                ls["product_uom_id"],
+                prut,
+                0.0 if prut == "trip" else ls["price_unit"],
+            ]
+            return tuple(list_key)
+
+        # Original prepare list that enable us to create one invoice line
+        #  per selected logistics schedule + extra useful information for
+        #  the case we need to group them
+        prepare_ls_list = [
+            ls._prepare_ls_account_move_line(move_id)
+            for ls in self
+        ]
+        if (
+            self.env.context.get("group_lines", False)
+            and len(prepare_ls_list) > 1
+        ):
+            """
+            Grouping criteria by:
+            - product (replacing account, that is not available at this point)
+            - analytic account
+            - product unit of measure
+            - price unit type
+            - (OPT) price unit
+
+            When aggregating,
+            - If product unit of mesure is 'trip' => adding to price unit
+            - If product unit of mesure is 'unit' => adding to price qty
+            """
+            prepare_ls_list_agg = {}
+            for prepare_ls in prepare_ls_list:
+                prepare_ls_agg = prepare_ls_list_agg.setdefault(make_key(prepare_ls), {})
+                if not prepare_ls_agg:
+                    prepare_ls_agg.update(prepare_ls)
+                else:
+                    if prepare_ls_agg["logistics_price_unit_type"] == "trip":
+                        prepare_ls_agg["price_unit"] += prepare_ls["price_unit"]
+                    else:
+                        prepare_ls_agg["quantity"] += prepare_ls["quantity"]
+                    # Second LS for this line, so we have to remove "Many2many", if existed
+                    old_ls_id = prepare_ls_agg.pop("logistics_schedule_id", False)
+                    ls_ids = prepare_ls_agg.setdefault("agg_logistics_schedule_ids", [])
+                    if old_ls_id:
+                        ls_ids.append((4, old_ls_id))
+                    ls_ids.append((4, prepare_ls["logistics_schedule_id"]))
+            prepare_ls_list = list(prepare_ls_list_agg.values())
+
+        # Before returning list, we should extract those values that won't
+        #  belong to an invoice line
+        for prepare_ls in prepare_ls_list:
+            prepare_ls.pop("logistics_price_unit_type")
+        return prepare_ls_list
+
+    def _prepare_ls_account_move_line(self, move_id):
+        self.ensure_one()
+        ls_id = self.browse(self.id.origin)
+        if ls_id.logistics_price_unit_type == 'trip':
+            qty = 1
+        else:
+            qty = ls_id.product_uom_qty
+
+        product = self._get_invoice_product()
+        return {
+            'name': move_id.ref or ('%s: %s' % (ls_id.picking_id.name or '', ls_id.product_id.name)),
+            'move_id': move_id.id,
+            'currency_id': ls_id.currency_id.id,
+            'logistics_schedule_id': ls_id.id,
+            'product_id': product.id,
+            'product_uom_id': product.uom_id.id,
+            'price_unit': ls_id.logistics_price_unit_done,
+            'quantity': qty,
+            'partner_id': ls_id.partner_id.id,
+            "logistics_price_unit_type": ls_id.logistics_price_unit_type,
+        }
+
+    def _get_invoice_product(self):
+        self.ensure_one()
+        if self.type == "input" and self.transport_type == TRANSPORT_TYPE[0][0]:
+            return self.env.company.ls_default_inv_i_g_product_id
+        elif self.type == "input" and self.transport_type == TRANSPORT_TYPE[1][0]:
+            return self.env.company.ls_default_inv_i_og_product_id
+        elif self.type == "output" and self.transport_type == TRANSPORT_TYPE[0][0]:
+            return self.env.company.ls_default_inv_o_g_product_id
+        elif self.type == "output" and self.transport_type == TRANSPORT_TYPE[1][0]:
+            return self.env.company.ls_default_inv_o_og_product_id
+        else:
+            return False

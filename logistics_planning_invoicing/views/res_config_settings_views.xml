@@ -1,0 +1,31 @@
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="logistics_planning_base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='logistics_planning_base']/block" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//app[@name='logistics_planning_base']" position="inside">
+                <block title="Invoicing" name="lg_invoicing_setting_container">
+                    <setting string="Default Journal in Logistics Schedule" id="logistics_schedule_default_journal_id">
+                        <field name="logistics_schedule_default_journal_id"/>
+                    </setting>
+                    <setting string="Default product in invoices for ground inputs" id="ls_default_inv_i_g_product_id">
+                        <field name="ls_default_inv_i_g_product_id"/>
+                    </setting>
+                    <setting string="Default product in invoices for ocean-going inputs" id="ls_default_inv_i_og_product_id">
+                        <field name="ls_default_inv_i_og_product_id"/>
+                    </setting>
+                    <setting string="Default product in invoices for ground outputs" id="ls_default_inv_o_g_product_id">
+                        <field name="ls_default_inv_o_g_product_id"/>
+                    </setting>
+                    <setting string="Default product in invoices for ocean-going outputs" id="ls_default_inv_o_og_product_id">
+                        <field name="ls_default_inv_o_og_product_id"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

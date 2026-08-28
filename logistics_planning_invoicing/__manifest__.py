@@ -1,0 +1,28 @@
+# © 2024 Solvos Consultoría Informática (<http://www.solvos.es>)
+# License LGPL-3 - See http://www.gnu.org/licenses/lgpl-3.0.html
+{
+    'name': 'Logistics Planning Invoicing',
+    'summary': '''
+        Links Logistics Planning with Invoicing
+    ''',
+    'author': 'Solvos',
+    'license': 'LGPL-3',
+    'version': '17.0.1.0.0',
+    'category': 'stock',
+    'website': 'https://github.com/solvosci/slv-logistics',
+    'depends': [
+        'account',
+        'logistics_planning_base',
+    ],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/account_incoterms_views.xml',
+        'views/account_move_views.xml',
+        'views/logistics_schedule_views.xml',
+        'views/res_config_settings_views.xml',
+        'wizards/logistics_schedule_account_move_wizard_views.xml',
+        'wizards/logistics_schedule_existing_account_move_wizard_views.xml',
+        'views/logistics_schedule_invoicing_menu.xml',
+    ],
+    'installable': True,
+}
