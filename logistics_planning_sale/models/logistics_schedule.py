@@ -19,8 +19,14 @@ class LogisticsSchedule(models.Model):
     def _prepare_ls_account_move_line(self, move_id):
         values = super()._prepare_ls_account_move_line(move_id)
         ls_id = self.browse(self.id.origin)
-        if ls_id.sale_order_id and ls_id.sale_order_id.analytic_account_id:
+        if ls_id.sale_order_id and (
+            ls_id.sale_order_id.analytic_account_id
+            or ls_id.sale_order_line_id.analytic_distribution
+        ):
             values.update({
-                "analytic_account_id": ls_id.sale_order_id.analytic_account_id.id,
+                "analytic_distribution": (
+                    ls_id.sale_order_line_id.analytic_distribution
+                    or {ls_id.sale_order_id.analytic_account_id.id: 100}
+                ),
             })
         return values

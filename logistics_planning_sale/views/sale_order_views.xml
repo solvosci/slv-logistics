@@ -24,21 +24,21 @@
                     name="logistics_schedule_disabled"
                     widget="boolean_toggle"
                     string="Disable log. sched."
-                    readonly="state in ['done', 'cancel']"
+                    readonly="locked or state == 'cancel'"
                 />
             </xpath>
             <xpath
                 expr="//page[@name='order_lines']/field/tree/field[@name='sequence']"
                 position="after"
             >
-                <field name="ls_schedule_allowed" invisible="1" />
+                <field name="ls_schedule_allowed" column_invisible="1" />
                 <button
                     name="action_logistics_schedule_add"
                     icon="fa-truck"
                     class="p-0"
                     type="object"
                     title="Add schedule(s)"
-                    invisible="state != 'sale' or not ls_schedule_allowed"
+                    invisible="parent.locked or state != 'sale' or not ls_schedule_allowed"
                 />
             </xpath>
             <xpath
@@ -81,7 +81,7 @@
                 <page
                     name="logistics_schedules"
                     string="Logistics Schedules"
-                    invisible="logistics_schedule_ids == []"
+                    invisible="not logistics_schedule_ids"
                     groups="logistics_planning_base.group_lp_user"
                 >
                     <field name="logistics_schedule_ids">
@@ -96,7 +96,7 @@
                             <field name="product_uom_qty" />
                             <field name="scheduled_load_date" />
                             <field name="commitment_date" />
-                            <field name="currency_id" invisible="1"/>
+                            <field name="currency_id" column_invisible="1"/>
                             <field name="logistics_price_unit" widget="monetary" />
                             <field name="logistics_price_unit_done" widget="monetary" />
                             <field name="carrier_id" />

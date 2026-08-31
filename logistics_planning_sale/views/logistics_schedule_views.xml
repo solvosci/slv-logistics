@@ -5,7 +5,7 @@
         <field name="inherit_id" ref="logistics_planning_base.logistics_schedule_view_search"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='product_id']" position="after">
-                <field name="sale_order_id" groups="logistics_planning_base.group_sale_salesman"/>
+                <field name="sale_order_id" groups="sales_team.group_sale_salesman"/>
             </xpath>
         </field>
     </record>
@@ -56,8 +56,8 @@
         <field name="inherit_id" ref="logistics_planning_base.logistics_schedule_view_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='partner_id']" position="before">
-                <field name="sale_order_line_id" invisible="1" />
-                <field name="sale_order_id" invisible="1" />
+                <field name="sale_order_line_id" column_invisible="1" />
+                <field name="sale_order_id" column_invisible="1" />
             </xpath>
             <field name="stock_move_id" position="attributes">
                 <!-- Moves linked to our sales order, or linked to those

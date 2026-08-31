@@ -50,10 +50,11 @@ class SaleOrder(models.Model):
 
     def action_view_ls_account_move(self):
         self.ensure_one()
-        action = self.env.ref("account.action_move_in_invoice_type")
-        result = action.read()[0]
-        result["context"] = {
-            "default_type": "in_invoice",
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "account.action_move_in_invoice_type"
+        )
+        action["context"] = {
+            "default_move_type": "in_invoice",
             "default_company_id": self.company_id.id,
         }
         # Invoice_ids may be filtered depending on the user. To ensure we get all
@@ -61,17 +62,17 @@ class SaleOrder(models.Model):
         # self.sudo()._read(['invoice_ids'])
         # choose the view_mode accordingly
         if self.logistics_account_move_count > 1:
-            result["domain"] = "[('id', 'in', " + str(self.logistics_account_move_ids.ids) + ")]"
+            action["domain"] = "[('id', 'in', " + str(self.logistics_account_move_ids.ids) + ")]"
             # result["domain"] = [("id", "in", self.logistics_account_move_ids.ids)]
         else:
             res = self.env.ref("account.view_move_form", False)
             form_view = [(res and res.id or False, "form")]
-            if "views" in result:
-                result["views"] = form_view + [(state,view) for state,view in action["views"] if view != "form"]
+            if "views" in action:
+                action["views"] = form_view + [(state,view) for state,view in action["views"] if view != "form"]
             else:
-                result["views"] = form_view
-            result["res_id"] = self.logistics_account_move_ids.id or False
-        return result        
+                action["views"] = form_view
+            action["res_id"] = self.logistics_account_move_ids.id or False
+        return action        
 
     def action_confirm(self):
         # If there are already logistics schedules linked to this SO we won't
