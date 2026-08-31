@@ -47,7 +47,7 @@
                 expr="//field[@name='order_line']/tree/field[@name='sequence']"
                 position="after"
             >
-                <field name="ls_schedule_allowed" invisible="1" />
+                <field name="ls_schedule_allowed" column_invisible="1" />
                 <button
                     name="action_logistics_schedule_add"
                     icon="fa-truck"
@@ -116,7 +116,7 @@
             >
                 <page
                     name="logistics_schedules" string="Logistics Schedules"
-                    invisible="logistics_schedule_ids == []" groups="logistics_planning_base.group_lp_user"
+                    invisible="not logistics_schedule_ids" groups="logistics_planning_base.group_lp_user"
                 >
                     <field name="logistics_schedule_ids">
                         <tree
