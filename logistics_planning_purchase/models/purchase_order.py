@@ -1,0 +1,165 @@
+# © 2024 Solvos Consultoría Informática (<http://www.solvos.es>)
+# License LGPL-3.0 (https://www.gnu.org/licenses/lgpl-3.0.html)
+
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
+from odoo.tools import float_is_zero
+
+
+class PurchaseOrder(models.Model):
+    _inherit = "purchase.order"
+
+    logistics_schedule_ids = fields.One2many(
+        comodel_name="logistics.schedule",
+        inverse_name="purchase_order_id",
+        string="Logistics Schedules",
+        copy=False,
+    )
+    logistics_schedule_skip = fields.Boolean(
+        default=False,
+        copy=False,
+        help="""
+        Technical field that enables skip logistics schedules
+        creation during order approval
+        """,
+    )
+    logistics_schedule_disabled = fields.Boolean(
+        string="Disable logistics schedules creation",
+        default=False,
+        copy=False,
+        tracking=True,
+    )
+    logistics_schedule_one_line = fields.Boolean(
+        string="Only schedule one line",
+        default=False,
+        copy=False,
+        tracking=True,
+    )
+    logistics_account_move_ids = fields.Many2many(
+        comodel_name="account.move",
+        compute="_compute_logistics_account_moves",
+        string="Logistics Bills",
+    )
+    logistics_account_move_count = fields.Integer(
+        compute="_compute_logistics_account_moves",
+        string="Logistics Bill Count",
+    )
+    ls_transport_type = fields.Selection(
+        related="incoterm_id.ls_sale_transport_type",
+    )
+
+    @api.onchange("picking_type_id")
+    def _ls_onchange_picking_type_id(self):
+        if self.picking_type_id:
+            self.logistics_schedule_disabled = (
+                self.picking_type_id.ls_po_create_disable_default
+            )
+
+    @api.onchange("logistics_schedule_disabled")
+    def _onchange_logistics_schedule_disabled(self):
+        if (
+            self.logistics_schedule_disabled
+            and self.logistics_schedule_one_line
+        ):
+            self.logistics_schedule_one_line = False
+
+    def _compute_logistics_account_moves(self):
+        for po in self:
+            po.logistics_account_move_ids = (
+                po.order_line.logistics_schedule_ids.mapped("account_move_id")
+                or False
+            )
+            po.logistics_account_move_count = len(
+                po.logistics_account_move_ids
+            )
+
+    def action_view_ls_account_move(self):
+        # TODO move every method to logistics_base_invoicing
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "account.action_move_in_invoice_type"
+        )
+        action["context"] = {
+            "default_move_type": "in_invoice",
+            "default_company_id": self.company_id.id,
+        }
+        # Invoice_ids may be filtered depending on the user. To ensure we get all
+        # bills, we read them in sudo to fill the cache.
+        # self.sudo()._read(['invoice_ids'])
+        # choose the view_mode accordingly
+        if self.logistics_account_move_count > 1:
+            action["domain"] = "[('id', 'in', " + str(self.logistics_account_move_ids.ids) + ")]"
+            # result["domain"] = [("id", "in", self.logistics_account_move_ids.ids)]
+        else:
+            res = self.env.ref("account.view_move_form", False)
+            form_view = [(res and res.id or False, "form")]
+            if "views" in action:
+                action["views"] = form_view + [(state,view) for state,view in action["views"] if view != "form"]
+            else:
+                action["views"] = form_view
+            action["res_id"] = self.logistics_account_move_ids.id or False
+        return action        
+
+    def button_approve(self):
+        res = {}
+        ls_values = []
+        for order in self:
+            ls_line_ids = order.order_line.filtered(lambda x: x.ls_schedule_allowed)
+            if ls_line_ids and order.logistics_schedule_one_line:
+                ls_line_ids = ls_line_ids[0]
+            bad_order_lines = order.order_line.filtered(
+                lambda x: x.ls_schedule_allowed and x.logistics_schedule_init <= 0
+            )
+            pd = self.env["decimal.precision"].precision_get("Product Price")
+            zero_price_order_lines = order.order_line.filtered(
+                lambda x: x.ls_schedule_allowed and float_is_zero(x.logistics_price_unit, precision_rounding=pd)
+            )
+            error_msgs = []
+            if bad_order_lines and (ls_line_ids & bad_order_lines):
+                error_msgs.append(
+                    _("Please fill a valid Initial required schedules (>=0) for line(s) of %s order") % order.name
+                )
+            if zero_price_order_lines and (ls_line_ids & zero_price_order_lines):
+                error_msgs.append(
+                    _("Please fill a valid Logistics Price Unit (>0) for line(s) of %s order") % order.name
+                )
+            if error_msgs:
+                raise ValidationError("\n\n".join(error_msgs))
+
+            res = super(PurchaseOrder, order).button_approve()
+            for line in ls_line_ids:
+                ls_values += [
+                    line._prepare_logistics_schedule()
+                    for i in range(0, line.logistics_schedule_init)
+                ]
+        if ls_values:
+            ls_ids = self.env["logistics.schedule"].sudo().create(ls_values)
+            ls_ids._action_ready()
+        return res
+
+    def write(self, values):
+        ret = super().write(values)
+        self._update_logistics_schedules(values)
+        return ret
+
+    def _update_logistics_schedules(self, values):
+        """
+        We add here those purchase order values that should be hardlinked
+        to logistics schedules
+        """
+        ls_ids = self.sudo().logistics_schedule_ids.filtered(
+            lambda x: x.state not in ["done", "cancel"]
+        )
+        if ls_ids:
+            upd_values = {}
+            if "picking_type_id" in values:
+                upd_values[
+                    "destination_partner_id"
+                ] = self.picking_type_id.warehouse_id.partner_id.id
+            if "incoterm_id" in values:
+                upd_values.update({
+                    "incoterm_id": self.incoterm_id.id,
+                    "transport_type": self.ls_transport_type,
+                })
+            if upd_values:
+                ls_ids.write(upd_values)
