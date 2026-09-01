@@ -1,0 +1,399 @@
+# © 2023 Solvos Consultoría Informática (<http://www.solvos.es>)
+# License LGPL-3.0 (https://www.gnu.org/licenses/lgpl-3.0.html)
+
+from odoo import _, api, models, fields
+from odoo.exceptions import ValidationError
+
+import re
+
+TRANSPORT_TYPE = [
+    ('ground', 'Ground'),
+    ('ocean-going', 'Ocean-Going'),
+]
+PRICE_UNIT_TYPES = [
+    ("trip", "Trip"),
+    ("unit", "Unit"),
+]
+LICENSE_PLATE_RE = "^\w+$"
+
+
+class LogisticsSchedule(models.Model):
+    _name = 'logistics.schedule'
+    _description = 'logistics.schedule'
+    _inherit = ["mail.thread"]
+    _order = "scheduled_load_date desc, id desc"
+
+
+    name = fields.Char(compute='_compute_name')
+    company_id = fields.Many2one('res.company', string='Company', default=lambda self: self.env.company)
+    state = fields.Selection(
+        selection=[
+            ('draft', 'Draft'),
+            ('ready', 'Ready'),
+            ('done', 'Done'),
+            ('cancel', 'Cancel'),
+        ],
+        default='draft',
+        copy=False,
+        tracking=True,
+    )
+    type = fields.Selection(
+        selection=[
+            ('input', 'Input'),
+            ('output', 'Output'),
+        ],
+    )
+    origin = fields.Char(
+        copy=False,
+        help="""
+        Origin document (e.g. purchase order for inputs, sales order for outputs,...)
+        """,
+    )
+    stock_move_id = fields.Many2one(
+        'stock.move',
+        copy=False,
+    )
+    picking_id = fields.Many2one('stock.picking', related='stock_move_id.picking_id', store=True)
+    destination_partner_id = fields.Many2one(
+        'res.partner',
+        string="Destination",
+    )
+    partner_id = fields.Many2one('res.partner')
+    transport_type = fields.Selection(
+        selection=TRANSPORT_TYPE,
+    )
+    product_id = fields.Many2one(
+        'product.product',
+        domain="[('type', 'in', ['product', 'consu'])]",
+    )
+    # TODO set as related? Default value?
+    product_uom = fields.Many2one('uom.uom')
+    product_uom_qty = fields.Float(
+        digits='Product Unit of Measure',
+        string="Quantity",
+        compute="_compute_product_uom_qty",
+        store=True,
+        readonly=False,
+        copy=False,
+    )
+    scheduled_load_date = fields.Date(copy=False)
+    commitment_date = fields.Datetime(
+        string='Load Date',
+        copy=False,
+    )
+    commitment_date_hour = fields.Float(copy=False)
+    effective_date = fields.Datetime(
+        string='Unloading Date',
+        copy=False,
+    )
+    rescheduled_date = fields.Date(copy=False)
+    logistics_price_unit_type = fields.Selection(
+        selection=PRICE_UNIT_TYPES,
+        string="Price Type",
+    )
+    currency_id = fields.Many2one('res.currency', default=lambda self: self.env.company.currency_id)
+    logistics_price_unit = fields.Float(
+        digits='Product Price',
+        string="Price unit",
+    )
+    logistics_price_unit_done = fields.Float(
+        digits='Product Price',
+        string="Price Unit Done",
+        copy=False,
+    )
+    carrier_id = fields.Many2one(
+        'res.partner',
+        string="Carrier",
+    )
+    effective_carrier_id = fields.Many2one(
+        'res.partner',
+        string="Effective Carrier",
+    )
+    license_plate_1 = fields.Char()
+    license_plate_2 = fields.Char()
+    license_plate_3 = fields.Char()
+    schedule_finished = fields.Boolean(copy=False)
+    note = fields.Text(copy=False)
+
+    partner_readonly = fields.Boolean(
+        compute="_compute_partner_readonly",
+        compute_sudo=True,
+        string="Is partner readonly",
+        help="""
+        Technical field that helps us determining whether a partner can be
+        modified by users, only for 'ready' state
+        """,
+    )
+    can_set_to_done = fields.Boolean(
+        compute="_compute_can_set_to_done",
+        help="""
+        Tecnical field indicating whether this record can be set to done state
+        """,
+    )
+    etd_date = fields.Date(
+        string="ETD Date",
+        copy=False
+    )
+
+    # TODO remove when confirm is no longer needed (users want to fill it manually)
+    # def _compute_license_plate_3(self):
+    #     for record in self:
+    #         record.license_plate_3 = record.picking_id.container_number if record.type == 'output' else record.stock_move_id.picking_container_number
+
+    def _compute_name(self):
+        # TODO improve name // move to name_get()
+        for record in self:
+            record.name = f'{record.carrier_id.name} ({record.partner_id.name}) // {record.picking_id.name} - {record.product_id.display_name}'
+
+    def _compute_can_set_to_done(self):
+        to_done = self.filtered(lambda x: x.state == "ready")
+        to_done.update({"can_set_to_done": True})
+        (self - to_done).update({"can_set_to_done": False})
+
+    def _compute_partner_readonly(self):
+        """
+        By field definition, when schedule is in 'done' or 'cancel' state
+        partner cannot be editable by users.
+        This method aims to only check 'ready' state exceptions.
+        An instrumental field is defined instead of simply creating a XML
+        domain, so it could be later improved when needed
+        """
+        editable_ls_ids = self.filtered(lambda x: (
+            not x.origin and not x.stock_move_id
+        ))
+        editable_ls_ids.update({"partner_readonly": False})
+        (self - editable_ls_ids).update({"partner_readonly": True})
+
+    @api.onchange("partner_id")
+    def _onchange_partner_id(self):
+        """
+        For corner case when adding stock move for manual schedules,
+        and then trying to remove partner, before saving (after saving
+        partner becomes readonly and that situation is not possible)
+        """
+        if not self.partner_id:
+            self.stock_move_id = False
+
+    @api.onchange("product_id")
+    def _onchange_product_id(self):
+        # For manual logistics schedules
+        self.product_uom = self.product_id.uom_id
+
+    @api.depends("stock_move_id.product_uom_qty")
+    def _compute_product_uom_qty(self):
+        for record in self.filtered(lambda x: x.stock_move_id):
+            record.product_uom_qty = record.stock_move_id.product_uom_qty
+
+    @api.onchange("stock_move_id")
+    def _onchange_stock_move_id(self):
+        self.ensure_one()
+        if self.stock_move_id:
+            sched_finish = (
+                self.type == "output"
+                or self.env.context.get("sched_finish_input_auto", True)
+            )
+            date_field = "commitment_date" if self.type == 'output' else "effective_date"
+            self.update({
+                date_field: self.stock_move_id.date,
+                "schedule_finished": sched_finish,
+            }) 
+
+    @api.onchange("carrier_id")
+    def _onchange_carrier_id(self):
+        # TODO move effective_carrier_id to compute stored?
+        self.ensure_one()
+        if self.carrier_id and not self.effective_carrier_id:
+            self.effective_carrier_id = self.carrier_id
+
+    @api.constrains("commitment_date_hour")
+    def _check_commitment_date_hour(self):
+        invalid_hours = self.filtered(
+            lambda x: not (0 < x.commitment_date_hour < 24)
+        )
+        if invalid_hours:
+            raise ValidationError(_(
+                "Commitment hour invalid. Accepted values between 00:00"
+                " and 23:59"
+            ))
+
+    @api.onchange("license_plate_1")
+    def _check_license_plate_1(self):
+        self._check_license_plate_valid("license_plate_1")
+
+    @api.onchange("license_plate_2")
+    def _check_license_plate_2(self):
+        self._check_license_plate_valid("license_plate_2")
+
+    @api.onchange("license_plate_3")
+    def _check_license_plate_3(self):
+        self._check_license_plate_valid("license_plate_3")
+
+    def _check_license_plate_valid(self, license_plate_field):
+        license_plate = self[license_plate_field]
+        if license_plate and not re.match(LICENSE_PLATE_RE, license_plate):
+            self[license_plate_field] = False
+            raise ValidationError(
+                _("Wrong license plate: [%s] (only alphanumeric characters are valid)")
+                % license_plate
+            )
+
+    def action_logistics_schedule_form_view(self):
+        # action = self.env.ref('logistics_planning_base.action_logistics_schedule_form')
+        # action_logistics_schedule_input
+        xmlid = "logistics_planning_base.action_logistics_schedule_%s_form" % self.env.context.get("default_type", self.type)
+        action = self.env["ir.actions.act_window"]._for_xml_id(xmlid)
+        action["res_id"] = self.id
+        return action
+
+    def action_logistics_schedule_draft(self):
+        self.browse(self.env.context.get("active_ids", []))._action_draft()
+
+    def action_logistics_schedule_ready(self):
+        self.browse(self.env.context.get("active_ids", [])).with_context(
+            ls_check_req_fields=True
+        )._action_ready()
+
+    def action_logistics_schedule_cancel(self):
+        logistic_ids = self.browse(self.env.context.get("active_ids", []))
+        if self.env.context.get('logistic_schedule_cancel_skip_confirm'):
+            logistic_ids._action_cancel()
+        else:
+            to_cancel = logistic_ids.filtered(lambda x: x.state in ['draft', 'ready', 'done'])
+            if not to_cancel:
+                raise ValidationError(_('Only records can be cancelled if they are in Draft, Ready or Done status.'))
+            new = self.env['logistics.schedule.cancel.wizard'].create({
+                'logistics_schedule_ids': to_cancel.ids,
+            })
+            return {
+                'name': _('Cancel logistic scheduled'),
+                'res_model': 'logistics.schedule.cancel.wizard',
+                'view_mode': 'form',
+                'view_type': 'form',
+                'res_id': new.id,
+                'target': 'new',
+                'type': 'ir.actions.act_window',
+            }
+
+
+    def action_logistics_schedule_copy(self):
+        self.browse(self.env.context.get("active_ids", []))._action_copy()
+
+    def action_logistics_schedule_finished(self):
+        self.browse(self.env.context.get("active_ids", []))._action_sched_finished()
+
+    def action_logistics_schedule_done(self):
+        self.browse(self.env.context.get("active_ids", []))._action_done()
+
+    def _action_draft(self):
+        to_draft = self.filtered(lambda x: x.state == 'cancel')
+        to_draft.write({
+            "state": "draft",
+        })
+        return to_draft
+
+    def _action_ready(self):
+        to_ready = self.filtered(lambda x: x.state in ["draft", "cancel"])
+        if self.env.context.get("ls_check_req_fields", False):
+            req_fields = self._action_ready_fields_check_req_fields()
+            for ls in to_ready:
+                ok = all([ls[field] for field in req_fields])
+                if not ok:
+                    raise ValidationError(
+                        _(
+                            "Cannot mark schedule(s) as ready: there's at least one"
+                            "required field unset. Required fields:\n\n- %s"
+                        ) % "\n- ".join(req_fields.values())
+                    )
+        to_ready.write({"state": "ready"})
+        return to_ready
+
+    def _action_ready_fields_check_req_fields(self):
+        return {
+            "partner_id": _("Contact (Provider/Vendor)"),
+            "transport_type": _("Transport type"),
+            "product_id": _("Product"),
+            "scheduled_load_date": _("Scheduled Date"),
+            "logistics_price_unit_type": _("Price Type"),
+        }
+
+    def _action_cancel(self):
+        to_cancel = self.filtered(lambda x: x.state in ['draft', 'ready', 'done'])
+        to_cancel.write({
+            "state": "cancel",
+            "stock_move_id": False,
+            "schedule_finished": False,
+        })
+        return to_cancel
+    
+    def _action_copy(self):
+        to_copy = self.filtered(lambda x: not x.origin)
+        if not to_copy:
+            raise ValidationError(_(
+                "There are no schedules selected that could be duplicated"
+            ))
+        max_copy_allowed = self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(
+            "logistics_planning_base.schedule_max_copy"
+        ) or ""
+        max_copy_allowed = (
+            max_copy_allowed.isdigit() and int(max_copy_allowed) or 1
+        )
+        if len(to_copy) > max_copy_allowed:
+            raise ValidationError(_(
+                "Cannot duplicate more than %d schedule(s) at the same time!"
+            ) % max_copy_allowed)
+        for sched in to_copy:
+            sched.copy()
+
+    def _check_safe_finished(self):
+        # TO BE OVERRIDEN by addons that inherit from this one
+        pass
+
+    def _action_sched_finished(self):
+        # sudo access will be needed for logistics_planning_mgmt_weight limited
+        #  access users
+        to_sched_finished = self.sudo().filtered(
+            lambda x: (
+                not x.schedule_finished
+                and x.state == "ready"
+                and x.stock_move_id
+            )
+        )
+        to_sched_finished.write({"schedule_finished": True})
+        return to_sched_finished
+
+    def _action_done(self, skip_can_set_to_done=False):
+        to_done = self
+        if not skip_can_set_to_done:
+            to_done = to_done.filtered(lambda x: x.can_set_to_done)
+        to_done_wo_sm = to_done.filtered(lambda x: not x.stock_move_id)
+        if len(to_done_wo_sm) > 0:
+            raise ValidationError(_(
+                "There's at least one schedule without stock move filled"
+            ))
+        to_done_wo_s_finished = to_done.filtered(
+            lambda x: not x.schedule_finished
+        )
+        if len(to_done_wo_s_finished) > 0:
+            raise ValidationError(_(
+                "There's at least one schedule unmarked as finished"
+            ))
+        to_done.write({"state": "done"})
+        return to_done
+
+    def write(self, values):
+        if values.get("schedule_finished", False):
+            self._check_safe_finished()
+        if "stock_move_id" in values:
+            # We assume that only a record is selected, no "expected singleton" should be fired
+            # (1) If there was a previous stock move linked, ls should be unlinked
+            if self.stock_move_id:
+                self.stock_move_id.logistics_schedule_id = False
+            # (2) If a new stock move is linked => ls should be linked as well
+            if values.get("stock_move_id", False):
+                self.env['stock.move'].browse(
+                    values["stock_move_id"]
+                ).logistics_schedule_id = self
+            # (3) If stock move was actually removed => nothing else to do
+        return super().write(values)

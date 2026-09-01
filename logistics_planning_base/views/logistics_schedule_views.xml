@@ -1,0 +1,471 @@
+<odoo>
+
+    <record id="action_logistics_schedule_draft" model="ir.actions.server">
+        <field name="name">Mark as Draft</field>
+        <field name="model_id" ref="model_logistics_schedule" />
+        <field name="binding_model_id" ref="model_logistics_schedule" />
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_logistics_schedule_draft()
+        </field>
+    </record>
+    <record id="action_logistics_schedule_ready" model="ir.actions.server">
+        <field name="name">Mark as Ready</field>
+        <field name="model_id" ref="model_logistics_schedule" />
+        <field name="binding_model_id" ref="model_logistics_schedule" />
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_logistics_schedule_ready()
+        </field>
+    </record>
+    <record id="action_logistics_schedule_sched_finished" model="ir.actions.server">
+        <field name="name">Mark as Finished</field>
+        <field name="model_id" ref="model_logistics_schedule" />
+        <field name="binding_model_id" ref="model_logistics_schedule" />
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_logistics_schedule_finished()
+        </field>
+    </record>
+    <record id="action_logistics_schedule_done" model="ir.actions.server">
+        <field name="name">Mark as Done</field>
+        <field name="model_id" ref="model_logistics_schedule" />
+        <field name="binding_model_id" ref="model_logistics_schedule" />
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_logistics_schedule_done()
+        </field>
+    </record>
+    <record id="action_logistics_schedule_cancel" model="ir.actions.server">
+        <field name="name">Cancel</field>
+        <field name="model_id" ref="model_logistics_schedule" />
+        <field name="binding_model_id" ref="model_logistics_schedule" />
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_logistics_schedule_cancel()
+        </field>
+    </record>
+    <record id="action_logistics_schedule_copy" model="ir.actions.server">
+        <field name="name">Duplicate</field>
+        <field name="model_id" ref="model_logistics_schedule" />
+        <field name="binding_model_id" ref="model_logistics_schedule" />
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_logistics_schedule_copy()
+        </field>
+    </record>
+
+    <record id="logistics_schedule_view_tree" model="ir.ui.view">
+        <field name="name">logistics.schedule.tree</field>
+        <field name="model">logistics.schedule</field>
+        <field name="arch" type="xml">
+            <tree editable="top" decoration-muted="state=='cancel'" decoration-success="state=='done'" decoration-danger="state=='draft'">
+                <button
+                    name="action_logistics_schedule_form_view"
+                    icon="fa-gear"
+                    class="p-0"
+                    type="object"
+                    title="Edit"
+                />
+                <field name="origin" optional="show" readonly="1" />
+                <field name="destination_partner_id"
+                    optional="show"
+                    readonly="state in ['cancel', 'done']"
+                />
+                <field name="partner_readonly" column_invisible="1" />
+                <field
+                    name="partner_id"
+                    optional="show"
+                    readonly="partner_readonly or state in ['cancel', 'done']"
+                />
+                <field
+                    name="stock_move_id"
+                    domain="[
+                        ('partner_id', 'in', [partner_id, False]),
+                        ('product_id', '=', product_id),
+                        ('state', '=', 'done'),
+                        ('logistics_schedule_id', '=', False),
+                        ('logistics_schedule_disabled', '=', False),
+                    ]"
+                    context="{'logistics_schedule_view': True}"
+                    options="{'no_create_edit': True, 'no_create': True}"
+                    readonly="state in ['draft', 'cancel', 'done']"
+                    string="Mov."
+                    optional="show"
+                />
+                <field name="transport_type"
+                    string="Type"
+                    optional="show"
+                    readonly="state in ['ready', 'cancel', 'done']"
+                />
+                <field name="product_id"
+                    optional="show"
+                    readonly="state in ['cancel', 'done']"
+                />
+                <field name="product_uom_qty"
+                    string="Qty"
+                    optional="show"
+                    readonly="state in ['cancel', 'done']"
+                />
+                <field
+                    name="product_uom"
+                    optional="hide"
+                    readonly="1"
+                    force_save="1"
+                    groups="uom.group_uom"
+                />
+                <field name="scheduled_load_date"
+                    string="Sched. Date"
+                    optional="show"
+                    readonly="state in ['ready', 'cancel', 'done']"
+                />
+                <field name="commitment_date"
+                    optional="show"
+                    readonly="state in ['cancel', 'done']"
+                />
+                <field
+                    name="commitment_date_hour"
+                    widget="float_time"
+                    optional="show"
+                    readonly="state in ['draft', 'cancel', 'done']"
+                />
+                <field name="effective_date" optional="show" readonly="state in ['draft', 'cancel', 'done']"/>
+                <field name="rescheduled_date" optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="logistics_price_unit_type" string="Pr. T." optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="logistics_price_unit" widget="monetary" string="Ord. Pr." optional="show" readonly="state in ['ready', 'cancel', 'done']"/>
+                <field name="logistics_price_unit_done" widget="monetary" string="Conf. Pr." optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="carrier_id" string="Carr." optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="effective_carrier_id" string="Eff. Carr." optional="show" readonly="state in ['cancel', 'done']"/>  
+                <field name="license_plate_1" string="L.P. 1" optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="license_plate_2" string="L.P. 2" optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="license_plate_3" string="L.P. 3" optional="show" readonly="state in ['cancel', 'done']"/>
+                <field name="state" readonly="1" string="St." optional="show" />
+                <field
+                    name="schedule_finished"
+                    widget="boolean_toggle"
+                    string="Sch. Fi."
+                    optional="show"
+                    readonly="state in ['draft', 'cancel', 'done']"
+                />
+                <field name="note" optional="show" />
+            </tree>
+        </field>
+    </record>
+    <record id="logistics_schedule_input_view_tree" model="ir.ui.view">
+        <field name="name">logistics.schedule.tree input</field>
+        <field name="model">logistics.schedule</field>
+        <field name="inherit_id" ref="logistics_schedule_view_tree" />
+        <field name="mode">primary</field>
+        <field eval="100" name="priority" />
+        <field name="arch" type="xml">
+            <!-- field name="transport_type" position="attributes">
+                <attribute name="string">Transport</attribute>
+            </field -->
+            <field name="stock_move_id" position="attributes">
+                <attribute
+                    name="domain"
+                    operation="domain_add"
+                    condition=""
+                    join_operator="AND"
+                >[('picking_code', '=', 'incoming')]</attribute>
+            </field>
+            <field name="commitment_date" position="attributes">
+                <attribute name="widget">date</attribute>
+            </field>
+            <field name="commitment_date_hour" position="attributes">
+                <attribute name="string">Hour</attribute>
+            </field>
+        </field>
+    </record>
+    <record id="logistics_schedule_output_view_tree" model="ir.ui.view">
+        <field name="name">logistics.schedule.tree output</field>
+        <field name="model">logistics.schedule</field>
+        <field name="inherit_id" ref="logistics_schedule_view_tree" />
+        <field name="mode">primary</field>
+        <field eval="100" name="priority" />
+        <field name="arch" type="xml">
+            <field name="destination_partner_id" position="attributes">
+                <attribute name="string">Load Place</attribute>
+            </field>
+            <!-- field name="transport_type" position="attributes">
+                <attribute name="string">Type</attribute>
+            </field -->
+            <field name="stock_move_id" position="attributes">
+                <attribute
+                    name="domain"
+                    operation="domain_add"
+                    condition=""
+                    join_operator="AND"
+                >[
+                    '|',
+                    ('picking_code', '=', 'outgoing'),
+                        '&amp;',
+                        ('picking_code', '=', 'internal'),
+                        ('warehouse_partner_id', '=', destination_partner_id),
+                ]</attribute>
+            </field>
+            <field name="scheduled_load_date" position="attributes">
+                <attribute name="string">Sched. Down.</attribute>
+            </field>
+            <field name="commitment_date_hour" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </field>
+            <field name="effective_date" position="attributes">
+                <attribute name="string">Delivery Date</attribute>
+            </field>
+            <field name="partner_id" position="attributes">
+                <attribute name="string">Customer</attribute>
+            </field>
+            <field name="commitment_date" position="after">
+                <field name="etd_date" string="ETD" optional="show" invisible="transport_type != 'ocean-going'"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="logistics_schedule_view_search" model="ir.ui.view">
+        <field name="name">logistics.schedule.search</field>
+        <field name="model">logistics.schedule</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="origin"/>
+                <field name="destination_partner_id"/>
+                <field name="picking_id"/>
+                <field name="stock_move_id" string="Ticket/Mov."/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="carrier_id" />
+                <field name="effective_carrier_id" />
+                <separator/>
+                <filter string="Pending" name="pending" domain="[('state', 'in', ['draft','ready'])]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                <filter string="Cancelled" name="cancel" domain="[('state', '=', 'cancel')]"/>
+                <separator/>
+                <filter
+                    string="Not finished"
+                    name="not_schedule_finished"
+                    domain="[('schedule_finished', '=', False)]"
+                />
+                <separator/>
+                <filter string="Scheduled Load Date" name="scheduled_load_date" date="scheduled_load_date"/>
+                <filter string="Commitment Date" name="commitment_date" date="commitment_date"/>
+                <filter string="Effective Date" name="scheduled_load_date" date="effective_date"/>
+                <filter string="Rescheduled Date" name="rescheduled_date" date="rescheduled_date"/>
+                <separator/>
+                <filter string="Ground" name="transport_type_ground" domain="[('transport_type', '=', 'ground')]"/>
+                <filter string="Ocean-Going" name="transport_type_ocean" domain="[('transport_type', '=', 'ocean-going')]"/>
+                <separator/>
+                <filter string="Trip" name="logistics_price_unit_type_trip" domain="[('logistics_price_unit_type', '=', 'trip')]"/>
+                <filter string="Unit" name="logistics_price_unit_type_unit" domain="[('logistics_price_unit_type', '=', 'unit')]"/>
+                <group expand="0" string="Group By...">
+                    <filter string="Trasport Type" name="group_transport_type" context="{'group_by': 'transport_type'}"/>
+                    <filter string="Destination" name="group_destination_partner_id" context="{'group_by': 'destination_partner_id'}"/>
+                    <filter string="Picking" name="group_picking_id" context="{'group_by': 'picking_id'}"/>
+                    <filter string="Partner" name="group_partner_id" context="{'group_by': 'partner_id'}"/>
+                    <filter string="Product" name="group_product_id" context="{'group_by': 'product_id'}"/>
+                    <filter string="Carrier" name="group_carrier_id" context="{'group_by': 'carrier_id'}"/>
+                    <filter string="Effective Carrier" name="group_effective_carrier_id" context="{'group_by': 'effective_carrier_id'}"/>
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Scheduled Load Date" name="group_scheduled_load_date" context="{'group_by': 'scheduled_load_date'}"/>
+                    <filter string="Rescheduled Date" name="group_rescheduled_date" context="{'group_by': 'rescheduled_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="logistics_schedule_view_form" model="ir.ui.view">
+        <field name="name">logistics.schedule.form</field>
+        <field name="model">logistics.schedule</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="%(action_logistics_schedule_draft)d"
+                        type="action"
+                        string="Mark as Draft"
+                        invisible="state != 'cancel'"
+                        icon="fa-pencil"
+                    />
+                    <button
+                        name="%(action_logistics_schedule_ready)d"
+                        type="action"
+                        string="Mark as Ready"
+                        invisible="state != 'draft'"
+                        context="{'ls_check_req_fields': True}"
+                        icon="fa-mail-forward"
+                    />
+                    <field name="can_set_to_done" invisible="1" />
+                    <button
+                        name="%(action_logistics_schedule_done)d"
+                        type="action"
+                        string="Mark as Done"
+                        invisible="not can_set_to_done"
+                        icon="fa-check"
+                    />
+                    <button
+                        name="%(action_logistics_schedule_cancel)d"
+                        type="action"
+                        string="Cancel"
+                        confirm="Are you sure you want to cancel this record?"
+                        context="{'logistic_schedule_cancel_skip_confirm': True}"
+                        invisible="state not in ['draft', 'ready', 'done']"
+                        icon="fa-ban"
+                    />
+                    <button
+                        name="%(action_logistics_schedule_copy)d"
+                        type="action"
+                        string="Duplicate"
+                        confirm="Are you sure you want to duplicate this record?"
+                        invisible="origin"
+                        icon="fa-paste"
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,ready,done,cancel" readonly="1"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field
+                                name="origin"
+                                invisible="not origin"
+                                readonly="1"
+                            />
+                            <field name="picking_id" />
+                            <field
+                                name="stock_move_id"
+                                domain="[
+                                    ('partner_id', 'in', [partner_id, False]),
+                                    ('product_id', '=', product_id),
+                                    ('state', '=', 'done'),
+                                    ('logistics_schedule_id', '=', False),
+                                    ('logistics_schedule_disabled', '=', False),
+                                ]"
+                                context="{'logistics_schedule_view': True}"
+                                options="{'no_create_edit': True, 'no_create': True}"
+                                readonly="state in ['draft', 'cancel', 'done']"
+                            />
+                            <field name="partner_readonly" invisible="1" />
+                            <field
+                                name="partner_id"
+                                readonly="partner_readonly or state in ['cancel', 'done']"
+                            />
+                            <field name="destination_partner_id" readonly="state in ['cancel', 'done']"/>
+                        </group>
+                        <group>
+                            <field name="scheduled_load_date" string="Sched. Date" readonly="state in ['ready', 'cancel', 'done']"/>
+                            <field name="commitment_date" readonly="state in ['cancel', 'done']"/>
+                            <field name="effective_date" readonly="state in ['draft', 'cancel', 'done']"/>
+                            <field name="rescheduled_date" readonly="state in ['cancel', 'done']"/>
+                        </group>
+                        <group>
+                            <field name="transport_type" readonly="state in ['ready', 'cancel', 'done']"/>
+                            <field name="carrier_id" readonly="state in ['cancel', 'done']"/>
+                            <field name="effective_carrier_id" readonly="state in ['cancel', 'done']"/>
+                            <field name="license_plate_1" readonly="state in ['cancel', 'done']"/>
+                            <field name="license_plate_2" readonly="state in ['cancel', 'done']"/>
+                            <field name="license_plate_3" readonly="state in ['cancel', 'done']"/>
+                            <field
+                                name="schedule_finished"
+                                string="Mark as finished"
+                                widget="boolean_toggle"
+                                readonly="state in ['draft', 'cancel', 'done']"
+                            />
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="product_id" readonly="origin or state in ['cancel', 'done']"/>
+                            <label for="product_uom_qty" readonly="state in ['cancel', 'done']"/>
+                            <div class="o_row no-gutters d-flex">
+                                <div class="col">
+                                    <field name="product_uom_qty" class="mr-1" readonly="state in ['cancel', 'done']"/>
+                                    <field
+                                        name="product_uom"
+                                        readonly="1"
+                                        force_save="1"
+                                        groups="uom.group_uom"
+                                    />
+                                </div>
+                            </div>
+                            <label for="logistics_price_unit" readonly="state in ['ready', 'cancel', 'done']"/>
+                            <div class="o_row no-gutters d-flex">
+                                <div class="col">
+                                    <field name="logistics_price_unit_done" class="mr-1" widget="monetary" readonly="state in ['cancel', 'done']"/> /
+                                    <field name="logistics_price_unit" class="mr-1" widget="monetary" readonly="state in ['ready', 'cancel', 'done']"/>
+                                    <field name="logistics_price_unit_type" readonly="state in ['cancel', 'done']"/>
+                                </div>
+                            </div>
+                        </group>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="logistics_schedule_input_view_form" model="ir.ui.view">
+        <field name="name">logistics.schedule.form input</field>
+        <field name="model">logistics.schedule</field>
+        <field name="inherit_id" ref="logistics_schedule_view_form" />
+        <field name="mode">primary</field>
+        <field eval="100" name="priority" />
+        <field name="arch" type="xml">
+            <field name="transport_type" position="attributes">
+                <attribute name="string">Transport</attribute>
+            </field>
+            <field name="stock_move_id" position="attributes">
+                <attribute
+                    name="domain"
+                    operation="domain_add"
+                    condition=""
+                    join_operator="AND"
+                >[('picking_code', '=', 'incoming')]</attribute>
+            </field>
+        </field>
+    </record>
+    <record id="logistics_schedule_output_view_form" model="ir.ui.view">
+        <field name="name">logistics.schedule.form output</field>
+        <field name="model">logistics.schedule</field>
+        <field name="inherit_id" ref="logistics_schedule_view_form" />
+        <field name="mode">primary</field>
+        <field eval="100" name="priority" />
+        <field name="arch" type="xml">
+            <field name="destination_partner_id" position="attributes">
+                <attribute name="string">Load Place</attribute>
+            </field>
+            <field name="transport_type" position="attributes">
+                <attribute name="string">Type</attribute>
+            </field>
+            <field name="stock_move_id" position="attributes">
+                <attribute
+                    name="domain"
+                    operation="domain_add"
+                    condition=""
+                    join_operator="AND"
+                >[
+                    '|',
+                    ('picking_code', '=', 'outgoing'),
+                        '&amp;',
+                        ('picking_code', '=', 'internal'),
+                        ('warehouse_partner_id', '=', destination_partner_id),
+                ]</attribute>
+            </field>
+            <field name="scheduled_load_date" position="attributes">
+                <attribute name="string">Sched. Down.</attribute>
+            </field>
+            <field name="effective_date" position="attributes">
+                <attribute name="string">Delivery Date</attribute>
+            </field>
+            <field name="partner_id" position="attributes">
+                <attribute name="string">Customer</attribute>
+            </field>
+            <field name="commitment_date" position="after">
+                <field name="etd_date" string="ETD" invisible="transport_type != 'ocean-going'"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>
