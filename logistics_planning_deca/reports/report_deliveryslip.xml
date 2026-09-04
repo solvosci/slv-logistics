@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_delivery_document_deca" inherit_id="stock.report_delivery_document">
+        <xpath expr="//div[hasclass('page')]" position="inside">
+            <t t-set="deca_source" t-value="(deca_sources or {}).get(o.id, o)"/>
+
+            <div class="row mt-4" t-if="deca_source and deca_source.deca_url">
+                <div class="col-8">
+                    <t t-if="deca_source._name == 'logistics.schedule'">
+                        <table class="table table-sm table-bordered">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Transportista</strong><br/>
+                                        <span t-esc="deca_source.carrier_id.display_name"/>
+                                    </td>
+                                    <td>
+                                        <strong>Chofer</strong><br/>
+                                        <span t-esc="deca_source.deca_driver_id.display_name"/>
+                                    </td>
+                                    <td>
+                                        <strong>Matrícula(s)</strong><br/>
+                                        <span t-esc="deca_source.license_plate_1"/>
+                                        <t t-if="deca_source.license_plate_2">
+                                            / <span t-esc="deca_source.license_plate_2"/>
+                                        </t>
+                                        <t t-if="deca_source.license_plate_3">
+                                            / <span t-esc="deca_source.license_plate_3"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+                </div>
+                <div class="col-4 text-end">
+                    <img t-att-src="image_data_uri(deca_source.deca_qr)" style="max-height: 3cm;"/>
+                    <div><small t-esc="deca_source.deca_url"/></div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>
