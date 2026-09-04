@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_waybill_document_deca" inherit_id="reports_alu.report_waybill_document_alumisel">
+        <xpath expr="//div[hasclass('page')]" position="inside">
+            <t t-set="deca_source" t-value="(deca_sources or {}).get(doc.id, doc)"/>
+
+            <div class="row mt-4" t-if="deca_source">
+                <div class="col-8">
+                    <t t-if="deca_source._name == 'logistics.schedule'">
+                        <table class="table table-sm table-bordered">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Carrier</strong><br/>
+                                        <span t-esc="deca_source.carrier_id.display_name or ''"/>
+                                    </td>
+                                    <td>
+                                        <strong>Driver</strong><br/>
+                                        <span t-esc="deca_source.deca_driver_id.display_name or ''"/>
+                                    </td>
+                                    <td>
+                                        <strong>License Plate(s)</strong><br/>
+                                        <span t-esc="deca_source.license_plate_1 or ''"/>
+                                        <t t-if="deca_source.license_plate_2">
+                                            / <span t-esc="deca_source.license_plate_2"/>
+                                        </t>
+                                        <t t-if="deca_source.license_plate_3">
+                                            / <span t-esc="deca_source.license_plate_3"/>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+                </div>
+                
+                <div class="col-4 text-end" t-if="getattr(deca_source, 'deca_qr', False)">
+                    <img t-att-src="image_data_uri(deca_source.deca_qr)" style="max-height: 3cm;"/>
+                    <div><small t-esc="deca_source.deca_url or ''"/></div>
+                </div>
+            </div>
+
+            <div class="row mt-4" t-if="deca_source and getattr(deca_source, 'deca_signature', False)">
+                <div class="col-6 offset-6 text-center">
+                    <strong>Authorized Signature:</strong><br/>
+                    <img t-att-src="image_data_uri(deca_source.deca_signature)" style="max-height: 2.5cm; max-width: 100%;"/>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>
