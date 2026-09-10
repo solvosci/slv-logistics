@@ -12,8 +12,12 @@
     'website': 'https://github.com/solvosci/slv-logistics',
     'depends': ["logistics_planning_base", "l10n_es_stock_picking_deca","reports_alu"],
     'data': [
+        'security/logistics_planning_deca_security.xml',
+        'security/ir.model.access.csv',
         'views/logistics_schedule_views.xml',
         'reports/stock_picking_template.xml',
+        'views/portal_templates.xml',
+        'views/res_config_settings_views.xml',
     ],
     'installable': True,
 }

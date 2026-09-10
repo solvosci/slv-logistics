@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_home_menu_schedule" name="Portal layout : schedule menu entries"
+            inherit_id="portal.portal_breadcrumbs" priority="30">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'schedule'" t-attf-class="breadcrumb-item #{'active ' if not schedule else ''}">
+                <a t-if="schedule" t-attf-href="/my/schedules?{{ keep_query() }}">Logistics Planning</a>
+                <t t-else="">Logistics Planning</t>
+            </li>
+            <li t-if="schedule" class="breadcrumb-item active">
+                <t t-out="schedule.name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home_schedule" name="Show Logistics Schedule"
+            inherit_id="portal.portal_my_home" customize_show="True" priority="30">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_client_category" position="inside">
+            <style>
+                .o_portal_docs a[href^="/my/schedules"]::before {
+                    font-family: "FontAwesome";
+                    content: "\f0d1"; /* fa-truck */
+                    margin-right: 8px;
+                    font-size: 1.1em;
+                }
+            </style>
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Logistics Planning</t>
+                <t t-set="url" t-value="'/my/schedules'"/>
+                <t t-set="text">Check your logistics planning records</t>
+                <t t-set="placeholder_count" t-value="'schedule_count'"/>
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_my_schedules" name="My Schedules">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Logistics Planning</t>
+            </t>
+
+            <t t-if="not schedules">
+                <p class="alert alert-warning">No records available.</p>
+            </t>
+            <t t-if="schedules" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th>Load Date</th>
+                        <th>Product</th>
+                        <th class="text-end">Quantity</th>
+                        <th>Carrier</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="schedules" t-as="schedule"
+                        class="o_portal_schedule_row"
+                        style="cursor: pointer;"
+                        t-attf-onclick="window.location='/my/schedules/#{schedule.id}?{{ keep_query() }}'">
+                        <td><span t-field="schedule.scheduled_load_date"/></td>
+                        <td><span t-field="schedule.product_id.name"/></td>
+                        <td class="text-end">
+                            <span t-field="schedule.product_uom_qty"/>
+                            <span t-field="schedule.product_uom.name"/>
+                        </td>
+                        <td><span t-field="schedule.carrier_id.name"/></td>
+                        <td>
+                            <span t-field="schedule.state"
+                                class="badge rounded-pill text-bg-light"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_schedule_detail" name="Schedule Detail" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <style>
+                .o_portal_schedule_row:last-child {
+                    border-bottom: none !important;
+                }
+                .o_portal_schedule_row span.text-end {
+                    max-width: 60%;
+                }
+            </style>
+            <div class="row o_portal_schedule_sidebar">
+
+                <div class="col-12 col-lg-4 d-print-none">
+                    <div class="mb-3">
+                        <span t-field="schedule.state" class="badge rounded-pill text-bg-light"/>
+                    </div>
+
+                    <h6 class="text-uppercase text-muted small fw-bold mt-4 mb-1">Product</h6>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom">
+                        <span class="text-muted small">Product</span>
+                        <span class="fw-semibold text-end" t-field="schedule.product_id.name"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom">
+                        <span class="text-muted small">Quantity</span>
+                        <span class="fw-semibold text-end">
+                            <span t-field="schedule.product_uom_qty"/>
+                            <span t-field="schedule.product_uom.name"/>
+                        </span>
+                    </div>
+
+                    <h6 class="text-uppercase text-muted small fw-bold mt-4 mb-1">Dates</h6>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom">
+                        <span class="text-muted small">Load Date</span>
+                        <span class="fw-semibold text-end" t-field="schedule.scheduled_load_date"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom">
+                        <span class="text-muted small">Commitment Date</span>
+                        <span class="fw-semibold text-end" t-field="schedule.commitment_date"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom">
+                        <span class="text-muted small">Unloading Date</span>
+                        <span class="fw-semibold text-end" t-field="schedule.effective_date"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
+                        t-if="schedule.rescheduled_date">
+                        <span class="text-muted small">Rescheduled To</span>
+                        <span class="fw-semibold text-end" t-field="schedule.rescheduled_date"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
+                        t-if="schedule.etd_date">
+                        <span class="text-muted small">ETD Date</span>
+                        <span class="fw-semibold text-end" t-field="schedule.etd_date"/>
+                    </div>
+
+                    <h6 class="text-uppercase text-muted small fw-bold mt-4 mb-1">Transport</h6>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
+                        t-if="schedule.carrier_id">
+                        <span class="text-muted small">Carrier</span>
+                        <span class="fw-semibold text-end" t-field="schedule.carrier_id.name"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
+                        t-if="schedule.effective_carrier_id">
+                        <span class="text-muted small">Effective Carrier</span>
+                        <span class="fw-semibold text-end" t-field="schedule.effective_carrier_id.name"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
+                        t-if="schedule.deca_driver_id">
+                        <span class="text-muted small">Driver</span>
+                        <span class="fw-semibold text-end" t-field="schedule.deca_driver_id.name"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
+                        t-if="schedule.license_plate_1">
+                        <span class="text-muted small">License Plate</span>
+                        <span class="fw-semibold text-end" t-field="schedule.license_plate_1"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
+                        t-if="schedule.license_plate_2">
+                        <span class="text-muted small">License Plate 2</span>
+                        <span class="fw-semibold text-end" t-field="schedule.license_plate_2"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
+                        t-if="schedule.license_plate_3">
+                        <span class="text-muted small">License Plate 3</span>
+                        <span class="fw-semibold text-end" t-field="schedule.license_plate_3"/>
+                    </div>
+                </div>
+
+                <div class="o_portal_content col-12 col-lg-8">
+
+                    <div t-if="message == 'updated'" class="alert alert-success" role="status">
+                        Data updated successfully.
+                    </div>
+                    <div t-if="message == 'action_done'" class="alert alert-success" role="status">
+                        Generate DeCA document successfully.
+                    </div>
+                    <div t-if="error" class="alert alert-danger" role="alert">
+                        <span t-out="error"/>
+                    </div>
+
+                    <div class="mt-2 p-3 border rounded">
+                        <h4>Edit Pickup Details</h4>
+                        <div class="row gy-2 gx-3">
+                            <form t-attf-action="/my/schedules/#{schedule.id}/update"
+                                    method="post" class="d-contents">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <input type="hidden" name="deca_signature" id="o_schedule_signature_input"/>
+
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label small mb-1" for="deca_driver_id">Driver</label>
+                                    <select class="form-select form-select-sm" id="deca_driver_id" name="deca_driver_id">
+                                        <option value="">-- Select a driver --</option>
+                                        <t t-foreach="available_drivers" t-as="driver">
+                                            <option t-att-value="driver.id"
+                                                    t-att-selected="driver.id == schedule.deca_driver_id.id">
+                                                <t t-out="driver.name"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                    <div class="">
+                                        <label class="form-label small mb-1 invisible d-block">Save</label>
+                                        <button type="submit" class="btn btn-primary btn-sm w-100">Save</button>
+                                    </div>
+                                </div>
+
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label small mb-1" for="license_plate_1">License Plate</label>
+                                    <input type="text" class="form-control form-control-sm" id="license_plate_1"
+                                        name="license_plate_1"
+                                        t-att-value="schedule.license_plate_1"/>
+                                </div>
+                            </form>
+
+                            <div class="col-6 col-md-2">
+                                <label class="form-label small mb-1 d-block">Signature</label>
+                                <t t-if="schedule.deca_signature">
+                                    <form t-attf-action="/my/schedules/#{schedule.id}/sign/clear" method="post">
+                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm mt-1">
+                                            Clear Signature
+                                        </button>
+                                    </form>
+                                </t>
+                                <t t-else="">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#o_schedule_signature_modal">
+                                            Add Signature
+                                        </button>
+                                    </div>
+                                </t>
+                            </div>
+                            <div class="col-6 col-md-5">
+                                <t t-if="schedule.deca_signature">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img t-att-src="image_data_uri(schedule.deca_signature)"
+                                            style="max-height: 90px;" alt="Signature"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <img id="o_schedule_signature_preview"
+                                            style="display:none; max-height: 90px;" alt="Signature preview"/>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal fade" id="o_schedule_signature_modal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Sign</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"/>
+                                </div>
+                                <div class="modal-body">
+                                    <canvas id="o_schedule_signature_pad" width="760" height="320"
+                                            style="border:1px solid #ccc; width:100%; touch-action:none; cursor:crosshair; background:#fff;"/>
+
+                                    <div class="mt-3 d-flex justify-content-between">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                id="o_schedule_signature_clear_btn">
+                                            Clear
+                                        </button>
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                                id="o_schedule_signature_use_btn">
+                                            Use Signature
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        (function () {
+                            var canvas = document.getElementById('o_schedule_signature_pad');
+                            if (!canvas) return;
+                            var ctx = canvas.getContext('2d');
+                            ctx.lineWidth = 2;
+                            ctx.lineCap = 'round';
+                            ctx.strokeStyle = '#000000';
+                            var drawing = false;
+                            var last = null;
+                            var hasDrawn = false;
+
+                            function getPos(e) {
+                                var rect = canvas.getBoundingClientRect();
+                                var scaleX = canvas.width / rect.width;
+                                var scaleY = canvas.height / rect.height;
+                                var point = e.touches ? e.touches[0] : e;
+                                return {
+                                    x: (point.clientX - rect.left) * scaleX,
+                                    y: (point.clientY - rect.top) * scaleY
+                                };
+                            }
+                            function start(e) {
+                                drawing = true;
+                                hasDrawn = true;
+                                last = getPos(e);
+                                e.preventDefault();
+                            }
+                            function move(e) {
+                                if (!drawing) return;
+                                var pos = getPos(e);
+                                ctx.beginPath();
+                                ctx.moveTo(last.x, last.y);
+                                ctx.lineTo(pos.x, pos.y);
+                                ctx.stroke();
+                                last = pos;
+                                e.preventDefault();
+                            }
+                            function end() { drawing = false; }
+
+                            canvas.addEventListener('mousedown', start);
+                            canvas.addEventListener('mousemove', move);
+                            window.addEventListener('mouseup', end);
+                            canvas.addEventListener('touchstart', start, {passive: false});
+                            canvas.addEventListener('touchmove', move, {passive: false});
+                            canvas.addEventListener('touchend', end);
+
+                            document.getElementById('o_schedule_signature_clear_btn')
+                                .addEventListener('click', function () {
+                                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                    hasDrawn = false;
+                                });
+
+                            document.getElementById('o_schedule_signature_use_btn')
+                                .addEventListener('click', function () {
+                                    if (!hasDrawn) {
+                                        alert('Please draw a signature before continuing.');
+                                        return;
+                                    }
+                                    var dataUrl = canvas.toDataURL('image/png');
+
+                                    // Copy the drawing into the hidden field of the "Save" form.
+                                    document.getElementById('o_schedule_signature_input').value = dataUrl;
+
+                                    // Show a small preview + reminder next to "Add Signature".
+                                    var preview = document.getElementById('o_schedule_signature_preview');
+                                    if (preview) {
+                                        preview.src = dataUrl;
+                                        preview.style.display = 'inline-block';
+                                    }
+                                    var hint = document.getElementById('o_schedule_signature_pending_hint');
+                                    if (hint) {
+                                        hint.style.display = 'block';
+                                    }
+
+                                    // Close the modal without submitting anything to the server.
+                                    var modalEl = document.getElementById('o_schedule_signature_modal');
+                                    var modalInstance = window.bootstrap
+                                        ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl))
+                                        : null;
+                                    if (modalInstance) {
+                                        modalInstance.hide();
+                                    } else {
+                                        // Fallback if the Bootstrap JS global isn't exposed:
+                                        // hide the modal and its backdrop manually.
+                                        modalEl.classList.remove('show');
+                                        modalEl.style.display = 'none';
+                                        modalEl.setAttribute('aria-hidden', 'true');
+                                        document.body.classList.remove('modal-open');
+                                        document.body.style.removeProperty('padding-right');
+                                        var backdrop = document.querySelector('.modal-backdrop');
+                                        if (backdrop) {
+                                            backdrop.remove();
+                                        }
+                                    }
+                                });
+                        })();
+                    </script>
+
+                    <div class="mt-3">
+                        <form t-attf-action="/my/schedules/#{schedule.id}/generate_deca" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="btn btn-secondary">
+                                Generate DeCA document
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="mt-4 p-3 border rounded" t-if="schedule.deca_attachment_id">
+                        <h4>Delivery Document</h4>
+                        <iframe t-attf-src="/my/schedules/#{schedule.id}/document"
+                                style="width: 100%; height: 600px; border: none;"
+                                title="Delivery Document"/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>
