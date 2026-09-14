@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Acción del Informe sobre logistics.schedule -->
-    <record id="action_report_logistics_schedule_deca" model="ir.actions.report">
-        <field name="name">Carta de Porte (DeCA)</field>
+    <record id="action_report_logistics_schedule_deca_waybill" model="ir.actions.report">
+        <field name="name">Waybill (DeCA)</field>
         <field name="model">logistics.schedule</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">logistics_planning_deca.report_logistics_schedule_waybill</field>
@@ -12,11 +10,10 @@
         <field name="binding_type">report</field>
     </record>
 
-    <!-- Documento principal -->
     <template id="report_logistics_schedule_waybill">
-        <t t-call="web.html_container">
+        <t t-call="web.basic_layout">
             <t t-foreach="docs" t-as="doc">
-                <t t-call="logistics_planning_deca.report_logistics_schedule_waybill_document" t-lang="doc.partner_id.lang or doc.env.lang"/>
+                <t t-call="logistics_planning_deca.report_logistics_schedule_waybill_document" t-lang="doc.partner_id.lang"/>
             </t>
         </t>
     </template>
@@ -26,7 +23,6 @@
         <t t-set="company_partner" t-value="doc.company_id.partner_id"/>
 
         <div class="page ml-3 mr-3">
-            <!-- Header con Logo e información de la empresa -->
             <div class="header row ml-3 mb-4" style="align-items: center;" name="div-header">
                 <div style="max-width: 250px !important;" t-if="doc.company_id.logo">
                     <img t-att-src="image_data_uri(doc.company_id.logo)" style="max-height: 80px; width: auto;" alt="Company Logo"/>
@@ -56,15 +52,12 @@
                 </div>
             </div>
             <div class="oe_structure"/>
-
             <h1 class="text-center" style="text-decoration: underline; margin-bottom: 40px">WAYBILL</h1>
-
-            <!-- Datos Generales de la Expedición -->
             <table class="w-75" style="font-size: 16px; margin-bottom: 25px;" name="table-picking">
                 <tbody>
                     <tr>
                         <td style="width: 375px;"><strong>Schedule / Ref:</strong></td>
-                        <td><span t-field="doc.name"/></td>
+                        <td><span t-field="doc.deca_sequence"/></td>
                     </tr>
                     <tr>
                         <td style="width: 375px;"><strong>Expedition date:</strong></td>
@@ -80,49 +73,49 @@
                         <td style="width: 375px;"><strong>Towing License Plate:</strong></td>
                         <td><span t-field="doc.license_plate_2"/></td>
                     </tr>
+                    <!-- (Sender) -->
                     <tr>
                         <td style="width: 375px;"><strong>Sender:</strong></td>
-                        <td><span t-esc="doc.company_id.name"/></td>
+                        <td><span t-esc="doc.partner_id.name"/></td>
                     </tr>
                     <tr>
                         <td style="width: 375px;"><strong>Address:</strong></td>
-                        <td><span t-esc="company_partner.street or ''"/></td>
+                        <td><span t-esc="doc.partner_id.street or ''"/></td>
                     </tr>
                     <tr>
                         <td style="width: 375px;"><strong>Location:</strong></td>
                         <td>
-                            <span t-esc="company_partner.zip or ''"/>
-                            <span t-esc="company_partner.city or ''"/>
-                            <t t-if="company_partner.state_id">
-                                (<span t-esc="company_partner.state_id.name"/>)
+                            <span t-esc="doc.partner_id.zip or ''"/>
+                            <span t-esc="doc.partner_id.city or ''"/>
+                            <t t-if="doc.partner_id.state_id">
+                                (<span t-esc="doc.partner_id.state_id.name"/>)
                             </t>
                         </td>
                     </tr>
                     <tr>
                         <td style="width: 375px;"><strong>VAT:</strong></td>
-                        <td><span t-esc="company_partner.vat or ''"/></td>
+                        <td><span t-esc="doc.partner_id.vat or ''"/></td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- Destinatario (Addressee) -->
-            <t t-set="addressee" t-value="doc.destination_partner_id or doc.partner_id"/>
-            <table class="w-75" style="font-size: 16px; margin-bottom: 25px;" name="table-addressee" t-if="addressee">
+            <!-- (Addressee) -->
+            <table class="w-75" style="font-size: 16px; margin-bottom: 25px;" name="table-addressee" t-if="company_partner">
                 <tbody>
                     <tr>
                         <td class="d-flex" style="width: 375px;"><strong>Addressee:</strong></td>
                         <td class="w-100">
-                            <span t-field="addressee.name"/><br/>
-                            <span t-field="addressee.street" t-if="addressee.street"/><br t-if="addressee.street"/>
-                            <span t-field="addressee.zip"/>
-                            <span t-field="addressee.city"/><br/>
-                            <span t-field="addressee.vat" t-if="addressee.vat"/>
+                            <span t-field="company_partner.name"/><br/>
+                            <span t-field="company_partner.street" t-if="company_partner.street"/><br t-if="company_partner.street"/>
+                            <span t-field="company_partner.zip"/>
+                            <span t-field="company_partner.city"/><br/>
+                            <span t-field="company_partner.vat" t-if="company_partner.vat"/>
                         </td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- Transportista (Carrier) -->
+            <!-- (Carrier) -->
             <t t-set="carrier" t-value="doc.effective_carrier_id or doc.carrier_id"/>
             <table class="w-75" style="font-size: 16px; margin-bottom: 25px;" name="table-carrier" t-if="carrier">
                 <tbody>
@@ -139,7 +132,7 @@
                 </tbody>
             </table>
 
-            <!-- Chofer (Driver) -->
+            <!-- (Driver) -->
             <table class="w-75" style="font-size: 16px; margin-bottom: 25px;" name="table-driver" t-if="doc.deca_driver_id">
                 <tbody>
                     <tr>
@@ -149,13 +142,12 @@
                             <span t-field="doc.deca_driver_id.street" t-if="doc.deca_driver_id.street"/><br t-if="doc.deca_driver_id.street"/>
                             <span t-field="doc.deca_driver_id.zip"/>
                             <span t-field="doc.deca_driver_id.city"/><br/>
-                            <span t-if="doc.deca_driver_id.vat">DNI/VAT: <span t-field="doc.deca_driver_id.vat"/></span>
+                            <span t-if="doc.deca_driver_id.vat">VAT: <span t-field="doc.deca_driver_id.vat"/></span>
                         </td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- Tabla de Productos / Cantidades -->
             <table style="font-size: 16px; width: 65%;" name="table-items">
                 <thead>
                     <tr class="border-bottom">
@@ -174,18 +166,18 @@
                 </tbody>
             </table>
 
-            <!-- Código QR y URL DeCA -->
             <div class="row mt-4" t-if="doc.deca_qr">
-                <div class="col-4 offset-8 text-center">
-                    <img t-att-src="image_data_uri(doc.deca_qr)" style="max-height: 3cm;"/>
-                    <div><small t-esc="doc.deca_url or ''"/></div>
+                <div class="col-3 offset-9 text-center">
+                    <img
+                    t-attf-src="data:image/png;base64,{{doc.deca_qr}}"
+                    style="width:120px;height:120px;"
+                    alt="DeCA QR"/>
                 </div>
             </div>
 
-            <!-- Firma DeCA -->
             <div class="row mt-4" t-if="doc.deca_signature">
                 <div class="col-6 offset-6 text-center">
-                    <strong>Firma Autorizada:</strong><br/>
+                    <strong>Authorized Signature:</strong><br/>
                     <img t-att-src="image_data_uri(doc.deca_signature)" style="max-height: 2.5cm; max-width: 100%;"/>
                 </div>
             </div>

@@ -12,11 +12,19 @@ class ResConfigSettings(models.TransientModel):
         readonly=False,
         required=True,
     )
+    ls_deca_sequence = fields.Char(
+        related="company_id.ls_deca_sequence",
+        readonly=False,
+        required=True,
+    )
 
 class ResCompany(models.Model):
     _inherit = 'res.company'
 
     ls_portal_notification_user_ids = fields.Many2one(
         comodel_name="res.users",
-        string="Users Notified of Portal Logistics DECa Generations",
+        string="Users Notified of Portal Logistics DeCA Generations",
+    )
+    ls_deca_sequence = fields.Char(
+        string="Sequence given to DeCA Documents generated in logistics",
     )

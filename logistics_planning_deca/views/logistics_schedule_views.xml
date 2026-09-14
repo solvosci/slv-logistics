@@ -28,18 +28,18 @@
 
             <sheet position="inside">
                 <notebook>
-                    <page string="DeCA Document" name="deca_document">
+                    <page string="DeCA Document" name="deca_document" >
                         <group>
                             <group string="Signature">
                                 <field name="deca_signature" widget="signature"/>
                             </group>
-                            <group string="DeCA PDF &amp; Metadata">
+                            <group string="DeCA PDF &amp; Metadata" invisible="not deca_is_generated">
                                 <field name="deca_attachment_id" widget="many2one_binary" filename="deca_attachment_id"/>
                                 <field name="deca_generation_date" readonly="1"/>
                                 <field name="deca_generated_by_id" readonly="1"/>
                             </group>
                         </group>
-                        <group string="DeCA Public Access">
+                        <group string="DeCA Public Access" invisible="not deca_is_generated">
                             <group>
                                 <field name="deca_url" widget="url" readonly="1"/>
                             </group>

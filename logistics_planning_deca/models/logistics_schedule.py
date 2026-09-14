@@ -1,5 +1,5 @@
 # © 2026 Solvos Consultoría Informática (<http://www.solvos.es>)
-# License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
+# License LGPL-3 - See http://www.gnu.org/licenses/lgpl-3.0.html
 
 import logging
 from odoo import _, fields, models
@@ -21,6 +21,10 @@ class LogisticsSchedule(models.Model):
         copy=False,
         help="Signature required to generate the DeCA document.",
     )
+    deca_sequence = fields.Char(
+        compute="_compute_deca_sequence",
+        copy=False,
+    )
 
     def _get_deca_url_path(self):
         self.ensure_one()
@@ -40,10 +44,18 @@ class LogisticsSchedule(models.Model):
             raise UserError(_(
                 "You must provide a signature before generating the DeCA document."
             ))
+        if not self.deca_sequence:
+            raise UserError(_(
+                "The DeCA sequence is not set. Please check the company settings."
+            ))
 
     def _get_deca_report(self):
         self.ensure_one()
-        return self.env.ref('logistics_planning_deca.action_report_logistics_schedule_deca')
+        return self.env.ref('logistics_planning_deca.action_report_logistics_schedule_deca_waybill')
+
+    def _compute_deca_sequence(self):
+        for schedule in self.filtered(lambda s: s.company_id.ls_deca_sequence):
+            schedule.deca_sequence = schedule.company_id.ls_deca_sequence + "/%s" % (schedule.id)
 
     def action_portal_custom_action(self, requested_by=None):
         self.ensure_one()

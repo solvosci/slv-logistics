@@ -8,9 +8,12 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//app[@name='logistics_planning_base']" position="inside">
-                <block title="DECa" name="lg_deca_setting_container">
-                    <setting string="Users Notified of Portal Logistics DECa Generations" id="ls_portal_notification_user_ids">
+                <block title="DeCA" name="lg_deca_setting_container">
+                    <setting string="Users Notified of Portal Logistics DeCA Generations" id="ls_portal_notification_user_ids">
                         <field name="ls_portal_notification_user_ids"/>
+                    </setting>
+                    <setting string="Sequence given to DeCA Documents generated in logistics" id="ls_deca_sequence">
+                        <field name="ls_deca_sequence"/>
                     </setting>
                 </block>
             </xpath>

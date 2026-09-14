@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 17.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-10 11:28+0000\n"
-"PO-Revision-Date: 2026-09-10 11:28+0000\n"
+"POT-Creation-Date: 2026-09-14 08:42+0000\n"
+"PO-Revision-Date: 2026-09-14 08:42+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,18 +16,19 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: logistics_planning_deca
-#: model:ir.actions.report,print_report_name:logistics_planning_deca.action_report_logistics_schedule_deca
+#: model:ir.actions.report,print_report_name:logistics_planning_deca.action_report_logistics_schedule_deca_waybill
 msgid "'Waybill - %s' % (object.name or object.id)"
-msgstr "'Carta de porte - %s' % (object.name or object.id)"
+msgstr "Carta de Porte - %s' % (object.name or object.id)"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
 msgid "<option value=\"\">-- Select a driver --</option>"
-msgstr "<option value=\"\">-- Seleccione un chofer --</option>"
+msgstr "<option value=\"\">-- Seleccione un chófer --</option>"
 
 #. module: logistics_planning_deca
 #. odoo-python
 #: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
+#: code:addons/slv-logistics/logistics_planning_deca/models/logistics_schedule.py:0
 #, python-format
 msgid ""
 "<p><strong>%(user)s</strong> has generated the DECA document for logistics "
@@ -113,6 +114,11 @@ msgstr "<strong>Destinatario:</strong>"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Authorized Signature:</strong><br/>"
+msgstr "<strong>Firma Autorizada:</strong><br/>"
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
 msgid "<strong>Carrier:</strong>"
 msgstr "<strong>Transportista:</strong>"
 
@@ -128,38 +134,33 @@ msgstr "<strong>Fecha de Expedición:</strong>"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
-msgid "<strong>Firma Autorizada:</strong><br/>"
-msgstr ""
-
-#. module: logistics_planning_deca
-#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
 msgid "<strong>License Plate Tractor Head:</strong>"
-msgstr ""
+msgstr "<strong>Matrícula cabeza tractora:</strong>"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
 msgid "<strong>Location:</strong>"
-msgstr ""
+msgstr "<strong>Localización:</strong>"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
 msgid "<strong>Schedule / Ref:</strong>"
-msgstr ""
+msgstr "<strong>Planificación / Ref:</strong>"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
 msgid "<strong>Sender:</strong>"
-msgstr ""
+msgstr "<strong>Remitente:</strong>"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
 msgid "<strong>Towing License Plate:</strong>"
-msgstr ""
+msgstr "<strong>Matrícula de remolque:</strong>"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
 msgid "<strong>VAT:</strong>"
-msgstr ""
+msgstr "<strong>NIF:</strong>"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
@@ -170,11 +171,6 @@ msgstr "Agregar Firma"
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
 msgid "Carrier"
 msgstr "Transportista"
-
-#. module: logistics_planning_deca
-#: model:ir.actions.report,name:logistics_planning_deca.action_report_logistics_schedule_deca
-msgid "Carta de Porte (DeCA)"
-msgstr ""
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_home_schedule
@@ -209,24 +205,15 @@ msgstr ""
 #. module: logistics_planning_deca
 #: model:ir.model,name:logistics_planning_deca.model_res_config_settings
 msgid "Config Settings"
-msgstr "Opciones de Configuración"
+msgstr "Ajustes de configuración"
 
 #. module: logistics_planning_deca
 #. odoo-python
 #: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
+#: code:addons/slv-logistics/logistics_planning_deca/models/logistics_schedule.py:0
 #, python-format
 msgid "DECA generated: %s"
 msgstr "Documento DeCA generado: %s"
-
-#. module: logistics_planning_deca
-#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.res_config_settings_view_form
-msgid "DECa"
-msgstr ""
-
-#. module: logistics_planning_deca
-#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
-msgid "DNI/VAT:"
-msgstr ""
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
@@ -237,6 +224,11 @@ msgstr "Información actualizada correctamente."
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
 msgid "Dates"
 msgstr "Fechas"
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.res_config_settings_view_form
+msgid "DeCA"
+msgstr ""
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
@@ -251,22 +243,27 @@ msgstr ""
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
 msgid "DeCA PDF & Metadata"
-msgstr ""
+msgstr "Documento DeCA y Metadatos"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
 msgid "DeCA Public Access"
+msgstr "Acceso Público a DeCA"
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "DeCA QR"
 msgstr ""
 
 #. module: logistics_planning_deca
 #: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_qr
 msgid "DeCA QR code"
-msgstr ""
+msgstr "Código QR DeCA"
 
 #. module: logistics_planning_deca
 #: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_signature
 msgid "DeCA Signature"
-msgstr ""
+msgstr "Firma DeCA"
 
 #. module: logistics_planning_deca
 #: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_url
@@ -276,17 +273,22 @@ msgstr ""
 #. module: logistics_planning_deca
 #: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_is_generated
 msgid "DeCA document generated"
-msgstr ""
+msgstr "Documento DeCA generado"
 
 #. module: logistics_planning_deca
 #: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_company_enabled
 msgid "DeCA enabled on company"
-msgstr ""
+msgstr "DeCA habilitado en la compañía"
 
 #. module: logistics_planning_deca
 #: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_generation_date
 msgid "DeCA generation date"
-msgstr ""
+msgstr "Fecha de generación de DeCA"
+
+#. module: logistics_planning_deca
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_sequence
+msgid "Deca Sequence"
+msgstr "Secuencia DeCA"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
@@ -354,6 +356,7 @@ msgstr "No hay registros disponibles."
 #. module: logistics_planning_deca
 #. odoo-python
 #: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
+#: code:addons/slv-logistics/logistics_planning_deca/models/logistics_schedule.py:0
 #, python-format
 msgid "Portal User"
 msgstr "Usuario del Portal"
@@ -386,6 +389,13 @@ msgid "Save"
 msgstr "Guardar"
 
 #. module: logistics_planning_deca
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_res_company__ls_deca_sequence
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_res_config_settings__ls_deca_sequence
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.res_config_settings_view_form
+msgid "Sequence given to DeCA Documents generated in logistics"
+msgstr "Secuencia asignada a los documentos DeCA generados en logística"
+
+#. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
 msgid "Sign"
 msgstr "Firmar"
@@ -412,6 +422,14 @@ msgid "Status"
 msgstr "Estado"
 
 #. module: logistics_planning_deca
+#. odoo-python
+#: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
+#: code:addons/slv-logistics/logistics_planning_deca/models/logistics_schedule.py:0
+#, python-format
+msgid "The DeCA sequence is not set. Please check the company settings."
+msgstr "La secuencia DeCA no está configurada. Por favor, revise los ajustes de la empresa."
+
+#. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
 msgid "Transport"
 msgstr "Transporte"
@@ -419,28 +437,41 @@ msgstr "Transporte"
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
 msgid "Use Signature"
-msgstr ""
+msgstr "Usar firma"
 
 #. module: logistics_planning_deca
 #: model:ir.model.fields,field_description:logistics_planning_deca.field_res_company__ls_portal_notification_user_ids
 #: model:ir.model.fields,field_description:logistics_planning_deca.field_res_config_settings__ls_portal_notification_user_ids
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.res_config_settings_view_form
-msgid "Users Notified of Portal Logistics DECa Generations"
-msgstr "Usuarios Notificados tras las Generaciones de Documentos DeCA Logísticas en el Portal"
+msgid "Users Notified of Portal Logistics DeCA Generations"
+msgstr ""
+"Usuarios Notificados tras las Generaciones de Documentos DeCA Logísticas en "
+"el Portal"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
 msgid "VAT"
-msgstr ""
+msgstr "NIF"
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "VAT:"
+msgstr "NIF:"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
 msgid "WAYBILL"
-msgstr ""
+msgstr "CARTA DE PORTE"
+
+#. module: logistics_planning_deca
+#: model:ir.actions.report,name:logistics_planning_deca.action_report_logistics_schedule_deca_waybill
+msgid "Waybill (DeCA)"
+msgstr "Carta de Porte (DeCA)"
 
 #. module: logistics_planning_deca
 #. odoo-python
 #: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
+#: code:addons/slv-logistics/logistics_planning_deca/models/logistics_schedule.py:0
 #, python-format
 msgid "You must provide a signature before generating the DeCA document."
 msgstr "Debe proporcionar una firma antes de generar el documento DeCA."
@@ -448,6 +479,7 @@ msgstr "Debe proporcionar una firma antes de generar el documento DeCA."
 #. module: logistics_planning_deca
 #. odoo-python
 #: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
+#: code:addons/slv-logistics/logistics_planning_deca/models/logistics_schedule.py:0
 #, python-format
 msgid "You must set a driver before generating the DeCA document."
 msgstr "Debe establecer un conductor antes de generar el documento DeCA."
