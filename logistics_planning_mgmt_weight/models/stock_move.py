@@ -52,10 +52,10 @@ class StockMove(models.Model):
             name = "%s [%s]" % (name, self_sudo.picking_vehicle_id.name)
         return name
 
-    @api.model
-    def create(self, values):
-        res = super().create(values)
-        if res.logistics_schedule_id:
+    @api.model_create_multi
+    def create(self, vals_list):
+        moves = super().create(vals_list)
+        for res in moves.filtered(lambda x: x.logistics_schedule_id):
             ls = res.logistics_schedule_id.sudo()
             if not ls.stock_move_id:
                 ls.stock_move_id = res.id
@@ -63,7 +63,7 @@ class StockMove(models.Model):
             else:
                 #ls.extra_stock_move_ids = [(4, res.id)]
                 ls.extra_stock_move_ids += res
-        return res
+        return moves
 
     @api.ondelete(at_uninstall=False)
     def _check_have_logistics_schedule(self):
