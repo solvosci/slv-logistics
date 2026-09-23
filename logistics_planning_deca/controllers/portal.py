@@ -36,15 +36,14 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
             domain.append(('parent_id', '=', carrier_id))
         return request.env['res.partner'].sudo().search(domain, order='name')
 
-    def _prepare_home_portal_values(self, counters):
-        values = super()._prepare_home_portal_values(counters)
-        if 'schedule_count' in counters:
-            partner = request.env.user.partner_id
-            Schedule = request.env['logistics.schedule']
-            schedule_count = Schedule.search_count(
-                self._get_schedule_domain(partner), limit=1
-            ) if Schedule.check_access_rights('read', raise_exception=False) else 0
-            values['schedule_count'] = schedule_count
+    def _prepare_home_portal_values(self):
+        values = super()._prepare_home_portal_values()
+        partner = request.env.user.partner_id
+        Schedule = request.env['logistics.schedule']
+        schedule_count = Schedule.search_count(
+            self._get_schedule_domain(partner)
+        ) if Schedule.check_access_rights('read', raise_exception=False) else 0
+        values.update({"ls_count": schedule_count})
         return values
 
     @http.route(['/my/schedules', '/my/schedules/page/<int:page>'], type='http', auth='user', website=True)
@@ -79,7 +78,6 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
 
         schedules = Schedule.search(
             domain, order=order,
-            limit=self._items_per_page,
             offset=pager['offset'],
         )
 

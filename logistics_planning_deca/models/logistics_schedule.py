@@ -4,14 +4,13 @@
 import logging
 from odoo import _, fields, models
 from odoo.exceptions import UserError
-from odoo.fields import Command
 
 _logger = logging.getLogger(__name__)
 
 
 class LogisticsSchedule(models.Model):
     _name = 'logistics.schedule'
-    _inherit = ['logistics.schedule', 'deca.document.mixin']
+    _inherit = ['logistics.schedule', 'deca.document.mixin', 'mail.thread']
 
     deca_driver_id = fields.Many2one(
         'res.partner',
@@ -71,13 +70,16 @@ class LogisticsSchedule(models.Model):
 
         requester_name = requested_by.name if requested_by else _("Portal User")
 
+        ctx = self.env.context.copy()
+        ctx.update({'requester_name': requester_name})
+
         template = self.env.ref(
             'logistics_planning_deca.mail_template_deca_portal_notification'
         )
-        return template.with_context(requester_name=requester_name).send_mail(
+        return template.with_context(ctx).send_mail(
             self.id,
             email_values={
-                'recipient_ids': [Command.set(notified_users.partner_id.ids)],
+                'recipient_ids': [(6, 0, notified_users.partner_id.ids)],
             },
             force_send=True,
         )
