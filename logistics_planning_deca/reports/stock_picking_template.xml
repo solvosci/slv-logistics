@@ -30,10 +30,7 @@
                 <div style="font-size: 16px; padding-left: 10px" class="col-4">
                     <ul style="padding-left: 0;">
                         <li style="list-style-type: none; font-weight: bold; font-size: 16px">
-                            <span t-esc="doc.company_id.name"/>
-                        </li>
-                        <li style="list-style-type: none;" t-if="company_partner.street">
-                            <span t-esc="company_partner.street"/>
+                            <span t-esc="doc.company_id.name"/>, <span t-esc="company_partner.street"/>
                         </li>
                         <li style="list-style-type: none;" t-if="company_partner.city">
                             <span t-esc="company_partner.city"/>
@@ -42,7 +39,6 @@
                             <span t-esc="company_partner.phone"/>
                         </li>
                         <li style="list-style-type: none;">
-                            <span t-esc="company_partner.email or ''"/>
                             <span t-esc="company_partner.website or ''"/>
                         </li>
                         <li style="list-style-type: none;" t-if="company_partner.vat">
@@ -50,10 +46,10 @@
                         </li>
                     </ul>
                 </div>
-                <div class="col-5" style="text-align: right;">
+                <div class="col-5" style="text-align: center;">
                     <img t-attf-src="data:image/png;base64,{{doc.deca_qr}}" style="width: 120px; height: 120px;"/>
                     <br/>DeCA
-                </div>                
+                </div>
             </div>
             <div class="oe_structure"/>
             <h1 class="text-center" style="text-decoration: underline; margin-bottom: 40px">WAYBILL</h1>

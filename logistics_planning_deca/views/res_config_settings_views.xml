@@ -4,18 +4,38 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="logistics_planning_base.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//app[@name='logistics_planning_base']/block" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//app[@name='logistics_planning_base']" position="inside">
-                <block title="DeCA" name="lg_deca_setting_container">
-                    <setting string="Users Notified of Portal Logistics DeCA Generations" id="ls_portal_notification_user_ids">
-                        <field name="ls_portal_notification_user_ids" widget="many2many_tags"/>
-                    </setting>
-                    <setting string="Sequence given to DeCA Documents generated in logistics" id="ls_deca_sequence">
-                        <field name="ls_deca_sequence"/>
-                    </setting>
-                </block>
+            <xpath expr="//div[@data-key='logistics_planning_base']" position="inside">
+                <h2>DeCA</h2>
+                <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="ls_portal_notification_user_ids"/>
+                            <div class="text-muted">
+                                Users Notified of Portal Logistics DeCA Generations
+                            </div>
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <field name="ls_portal_notification_user_ids" widget="many2many_tags"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="ls_deca_sequence"/>
+                            <div class="text-muted">
+                                Sequence given to DeCA Documents generated in logistics
+                            </div>
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <field name="ls_deca_sequence"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </xpath>
         </field>
     </record>
