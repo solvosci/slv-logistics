@@ -57,6 +57,7 @@
                         <th class="text-end">Quantity</th>
                         <th>Carrier</th>
                         <th>Status</th>
+                        <th>DeCA</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,6 +76,14 @@
                         <td>
                             <span t-field="schedule.state"
                                 class="badge rounded-pill text-bg-light"/>
+                        </td>
+                        <td>
+                            <t t-if="schedule.deca_is_generated">
+                                <span class="badge rounded-pill text-bg-success">Generated</span>
+                            </t>
+                            <t t-else="">
+                                <span class="badge rounded-pill text-bg-warning">Pending</span>
+                            </t>
                         </td>
                     </tr>
                 </tbody>
@@ -184,6 +193,17 @@
                     <div t-if="error" class="alert alert-danger" role="alert">
                         <span t-out="error"/>
                     </div>
+
+                    <t t-if="message or error">
+                        <script type="text/javascript">
+                            (function () {
+                                var url = new URL(window.location.href);
+                                url.searchParams.delete('message');
+                                url.searchParams.delete('error');
+                                window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+                            })();
+                        </script>
+                    </t>
 
                     <div class="mt-2 p-3 border rounded">
                         <h4>Edit Pickup Details</h4>

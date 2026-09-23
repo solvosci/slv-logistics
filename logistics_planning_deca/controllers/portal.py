@@ -8,16 +8,20 @@ from odoo.http import request
 
 class LogisticsScheduleCustomerPortal(CustomerPortal):
 
-    def _get_schedule_sudo(self, schedule_id, access_token=None):
-        return self._document_check_access(
-            'logistics.schedule', schedule_id, access_token=access_token
+    def _get_schedule(self, schedule, access_token=None):
+        schedule_id = self._document_check_access(
+            'logistics.schedule', schedule, access_token=access_token
         )
+        if schedule_id.state != 'ready' or schedule_id.schedule_finished or schedule_id.type != 'input':
+            raise AccessError("You do not have access to this record.")
+        return schedule_id
 
     def _get_schedule_domain(self, partner):
         return [
             ('partner_id', '=', partner.id),
             ('state', '=', 'ready'),
             ('schedule_finished', '=', False),
+            ('type', '=', 'input')
         ]
 
     def _get_schedule_searchbar_sortings(self):
@@ -99,7 +103,7 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
     @http.route(['/my/schedules/<int:schedule_id>'], type='http', auth='user', website=True)
     def portal_schedule_detail(self, schedule_id, access_token=None, message=None, error=None, **kw):
         try:
-            schedule_sudo = self._get_schedule_sudo(schedule_id, access_token=access_token)
+            schedule_sudo = self._get_schedule(schedule_id, access_token=access_token)
         except (AccessError, MissingError):
             return request.redirect('/my')
 
@@ -117,7 +121,7 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
     @http.route(['/my/schedules/<int:schedule_id>/update'], type='http', auth='user', website=True, methods=['POST'])
     def portal_schedule_update(self, schedule_id, **post):
         try:
-            schedule_sudo = self._get_schedule_sudo(schedule_id)
+            schedule_sudo = self._get_schedule(schedule_id)
         except (AccessError, MissingError):
             return request.redirect('/my')
 
@@ -138,7 +142,7 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
     @http.route(['/my/schedules/<int:schedule_id>/sign/clear'], type='http', auth='user', website=True, methods=['POST'])
     def portal_schedule_sign_clear(self, schedule_id, **post):
         try:
-            schedule_sudo = self._get_schedule_sudo(schedule_id)
+            schedule_sudo = self._get_schedule(schedule_id)
         except (AccessError, MissingError):
             return request.redirect('/my')
 
@@ -148,7 +152,7 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
     @http.route(['/my/schedules/<int:schedule_id>/generate_deca'], type='http', auth='user', website=True, methods=['POST'])
     def portal_schedule_generate_deca(self, schedule_id, **post):
         try:
-            schedule_sudo = self._get_schedule_sudo(schedule_id)
+            schedule_sudo = self._get_schedule(schedule_id)
         except (AccessError, MissingError):
             return request.redirect('/my')
 
@@ -162,7 +166,7 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
     @http.route(['/my/schedules/<int:schedule_id>/document'], type='http', auth='user', website=True)
     def portal_schedule_document(self, schedule_id, **kw):
         try:
-            schedule_sudo = self._get_schedule_sudo(schedule_id)
+            schedule_sudo = self._get_schedule(schedule_id)
         except (AccessError, MissingError):
             return request.redirect('/my')
 

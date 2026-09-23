@@ -53,9 +53,14 @@ msgstr ""
 "            "
 
 #. module: logistics_planning_deca
-#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
-msgid "<option value=\"\">-- Select a driver --</option>"
-msgstr "<option value=\"\">-- Seleccione un chófer --</option>"
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+msgid "<span class=\"badge rounded-pill text-bg-success\">Generated</span>"
+msgstr "<span class=\"badge rounded-pill text-bg-success\">Generado</span>"
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+msgid "<span class=\"badge rounded-pill text-bg-warning\">Pending</span>"
+msgstr "<span class=\"badge rounded-pill text-bg-warning\">Pendiente</span>"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
