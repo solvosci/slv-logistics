@@ -50,14 +50,14 @@
                     name="action_generate_deca"
                     type="object"
                     class="oe_highlight"
-                    invisible="deca_is_generated or state not in ('ready', 'done')"
+                    attrs="{'invisible': [('deca_is_generated', '=', True), ('state', 'not in', ('ready', 'done'))]}"
                 />
                 <button
                     string="Re-generate DeCA"
                     name="action_generate_deca"
                     type="object"
                     class="btn-secondary"
-                    invisible="not deca_is_generated or state not in ('ready', 'done')"
+                    attrs="{'invisible': [('deca_is_generated', '=', False), ('state', 'not in', ('ready', 'done'))]}"
                 />
             </header>
 
@@ -68,7 +68,7 @@
                             <group string="Signature">
                                 <field name="deca_signature" widget="signature"/>
                             </group>
-                            <group string="DeCA PDF &amp; Metadata" invisible="not deca_is_generated">
+                            <group string="DeCA PDF &amp; Metadata" attrs="{'invisible': [('deca_is_generated', '=', False)]}">
                                 <field
                                     name="deca_attachment_id"
                                     widget="many2one_binary"
@@ -87,7 +87,7 @@
                                 />
                             </group>
                         </group>
-                        <group string="DeCA Public Access" invisible="not deca_is_generated">
+                        <group string="DeCA Public Access" attrs="{'invisible': [('deca_is_generated', '=', False)]}">
                             <group>                                
                                 <field
                                     name="deca_hash_string"

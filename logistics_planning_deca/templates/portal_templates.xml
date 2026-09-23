@@ -9,32 +9,21 @@
                 <t t-else="">Logistics Planning</t>
             </li>
             <li t-if="schedule" class="breadcrumb-item active">
-                <t t-out="schedule.deca_sequence"/>
+                <t t-esc="schedule.deca_sequence"/>
             </li>
         </xpath>
     </template>
 
     <template id="portal_my_home_schedule" name="Show Logistics Schedule"
-            inherit_id="portal.portal_my_home" customize_show="True" priority="30">
-        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
-            <t t-set="portal_client_category_enable" t-value="True"/>
-        </xpath>
-        <div id="portal_client_category" position="inside">
-            <style>
-                .o_portal_docs a[href^="/my/schedules"]::before {
-                    font-family: "FontAwesome";
-                    content: "\f0d1"; /* fa-truck */
-                    margin-right: 8px;
-                    font-size: 1.1em;
-                }
-            </style>
+            inherit_id="portal.portal_my_home" priority="30">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
             <t t-call="portal.portal_docs_entry">
                 <t t-set="title">Logistics Planning</t>
                 <t t-set="url" t-value="'/my/schedules'"/>
                 <t t-set="text">Check your logistics planning records</t>
-                <t t-set="placeholder_count" t-value="'schedule_count'"/>
+                <t t-set="count" t-value="ls_count"/>
             </t>
-        </div>
+        </xpath>
     </template>
 
     <template id="portal_my_schedules" name="My Schedules">
@@ -182,25 +171,24 @@
                         Generate DeCA document successfully.
                     </div>
                     <div t-if="error" class="alert alert-danger" role="alert">
-                        <span t-out="error"/>
+                        <span t-esc="error"/>
                     </div>
 
                     <div class="mt-2 p-3 border rounded">
                         <h4>Edit Pickup Details</h4>
                         <div class="row gy-2 gx-3">
-                            <form t-attf-action="/my/schedules/#{schedule.id}/update"
-                                    method="post" class="d-contents">
+                            <form t-attf-action="/my/schedules/#{schedule.id}/update" method="post" class="d-contents row col-7">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                 <input type="hidden" name="deca_signature" id="o_schedule_signature_input"/>
 
-                                <div class="col-6 col-md-3">
+                                <div class="col-6">
                                     <label class="form-label small mb-1" for="deca_driver_id">Driver</label>
-                                    <select class="form-select form-select-sm" id="deca_driver_id" name="deca_driver_id">
+                                    <select class="form-select form-select-sm w-100" id="deca_driver_id" name="deca_driver_id">
                                         <option value="">-- Select a driver --</option>
                                         <t t-foreach="available_drivers" t-as="driver">
                                             <option t-att-value="driver.id"
                                                     t-att-selected="driver.id == schedule.deca_driver_id.id">
-                                                <t t-out="driver.name"/>
+                                                <t t-esc="driver.name"/>
                                             </option>
                                         </t>
                                     </select>
@@ -210,13 +198,13 @@
                                     </div>
                                 </div>
 
-                                <div class="col-3 col-md-2">
+                                <div class="col-3">
                                     <label class="form-label small mb-1" for="license_plate_1">License Plate</label>
                                     <input type="text" class="form-control form-control-sm" id="license_plate_1"
                                         name="license_plate_1"
                                         t-att-value="schedule.license_plate_1"/>
                                 </div>
-                                <div class="col-3 col-md-2">
+                                <div class="col-3">
                                     <label class="form-label small mb-1" for="license_plate_2">License Plate 2</label>
                                     <input type="text" class="form-control form-control-sm" id="license_plate_2"
                                         name="license_plate_2"
@@ -224,7 +212,7 @@
                                 </div>
                             </form>
 
-                            <div class="col-6 col-md-1">
+                            <div class="col-1">
                                 <label class="form-label small mb-1 d-block">Signature</label>
                                 <t t-if="schedule.deca_signature">
                                     <form t-attf-action="/my/schedules/#{schedule.id}/sign/clear" method="post">
@@ -237,13 +225,13 @@
                                 <t t-else="">
                                     <div class="d-flex align-items-center gap-2">
                                         <button type="button" class="btn btn-outline-primary btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#o_schedule_signature_modal">
+                                                data-toggle="modal" data-target="#o_schedule_signature_modal">
                                             Add Signature
                                         </button>
                                     </div>
                                 </t>
                             </div>
-                            <div class="col-6 col-md-3">
+                            <div class="col-4">
                                 <t t-if="schedule.deca_signature">
                                     <div class="d-flex align-items-center gap-2">
                                         <img t-att-src="image_data_uri(schedule.deca_signature)"
@@ -263,7 +251,9 @@
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title">Sign</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"/>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&#215;</span>
+                                    </button>
                                 </div>
                                 <div class="modal-body">
                                     <canvas id="o_schedule_signature_pad" width="760" height="320"
@@ -360,14 +350,19 @@
                                     }
 
                                     // Close the modal without submitting anything to the server.
+                                    // v13 usa Bootstrap 4: el modal se controla vía plugin jQuery,
+                                    // no existe la API bootstrap.Modal (esa es de Bootstrap 5).
                                     var modalEl = document.getElementById('o_schedule_signature_modal');
-                                    var modalInstance = window.bootstrap
-                                        ? (bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl))
-                                        : null;
-                                    if (modalInstance) {
-                                        modalInstance.hide();
+                                    var hasJQueryModal = false;
+                                    if (window.jQuery) {
+                                        if (jQuery.fn.modal) {
+                                            hasJQueryModal = true;
+                                        }
+                                    }
+                                    if (hasJQueryModal) {
+                                        jQuery(modalEl).modal('hide');
                                     } else {
-                                        // Fallback if the Bootstrap JS global isn't exposed:
+                                        // Fallback si jQuery/el plugin de Bootstrap no está disponible:
                                         // hide the modal and its backdrop manually.
                                         modalEl.classList.remove('show');
                                         modalEl.style.display = 'none';
