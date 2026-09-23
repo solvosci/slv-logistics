@@ -9,9 +9,13 @@ from odoo.http import request
 class LogisticsScheduleCustomerPortal(CustomerPortal):
 
     def _get_schedule_sudo(self, schedule_id, access_token=None):
-        return self._document_check_access(
+        schedule_sudo = self._document_check_access(
             'logistics.schedule', schedule_id, access_token=access_token
         )
+        if schedule_sudo.partner_id != request.env.user.partner_id or \
+            schedule_sudo.state != 'ready' or schedule_sudo.schedule_finished:
+            raise AccessError("You do not have access to this record.")
+        return schedule_sudo
 
     def _get_schedule_domain(self, partner):
         return [
