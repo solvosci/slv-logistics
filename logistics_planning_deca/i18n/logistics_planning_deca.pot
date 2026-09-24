@@ -1,0 +1,498 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* logistics_planning_deca
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 13.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-23 11:44+0000\n"
+"PO-Revision-Date: 2026-09-23 11:44+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: logistics_planning_deca
+#: model:ir.actions.report,print_report_name:logistics_planning_deca.action_report_logistics_schedule_deca_waybill
+msgid "'Waybill - %s' % (object.name or object.id)"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.actions.server,name:logistics_planning_deca.action_generate_deca
+msgid "(Re)generate DeCA"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "-- Select a driver --"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<br/>DeCA"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:mail.template,body_html:logistics_planning_deca.mail_template_deca_portal_notification
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"                    <p style=\"margin: 0px; padding: 0px; font-size: 13px;\">\n"
+"                        <strong>${ctx.get('requester_name') | safe}</strong>\n"
+"                        has generated the DECA document for logistics schedule\n"
+"                        <strong>${object.deca_sequence}</strong>.\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">Carrier</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">Commitment Date</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">Driver</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">ETD Date</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">Effective Carrier</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">License Plate 2</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">License Plate 3</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">License Plate</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">Load Date</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">Product</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">Quantity</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">Rescheduled To</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">Unloading Date</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Address:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Addressee:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Authorized Signature:</strong><br/>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Carrier:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Driver:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Expedition date:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>License Plate Tractor Head:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Location:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Schedule / Ref:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Sender:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>Towing License Plate:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "<strong>VAT:</strong>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Add Signature"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "Attachment"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+msgid "Carrier"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_home_schedule
+msgid "Check your logistics planning records"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Clear"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Clear Signature"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Close"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.model,name:logistics_planning_deca.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "Company Logo"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.model,name:logistics_planning_deca.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:mail.template,subject:logistics_planning_deca.mail_template_deca_portal_notification
+msgid "DECA generated: ${object.deca_sequence}"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_input_view_tree
+msgid "DECA seq."
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Data updated successfully."
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Dates"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.res_config_settings_view_form
+msgid "DeCA"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "DeCA Document"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "DeCA PDF & Metadata"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "DeCA Public Access"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_signature
+msgid "DeCA Signature"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_search
+msgid "DeCA documents"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_sequence
+msgid "Deca Sequence"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Delivery Document"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_driver_id
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Driver"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Edit Pickup Details"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "Generate DeCA"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Generate DeCA document"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Generate DeCA document successfully."
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "Generated By"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "Generation Date"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "Hash"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "Hash String"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "License Plate"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "License Plate 2"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+msgid "Load Date"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_home_menu_schedule
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_home_schedule
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+msgid "Logistics Planning"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+msgid "Name"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+msgid "No records available."
+msgstr ""
+
+#. module: logistics_planning_deca
+#: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
+#, python-format
+msgid "Portal User"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Product"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "Quality / Product"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "Quantity"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "Re-generate DeCA"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Save"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "Sequence"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_res_company__ls_deca_sequence
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_res_config_settings__ls_deca_sequence
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.res_config_settings_view_form
+msgid "Sequence given to DeCA Documents generated in logistics"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Sign"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Signature"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Signature preview"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.model.fields,help:logistics_planning_deca.field_logistics_schedule__deca_signature
+msgid "Signature required to generate the DeCA document."
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+msgid "Status"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
+#, python-format
+msgid "The DeCA sequence is not set. Please check the company settings."
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Transport"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.logistics_schedule_view_form
+msgid "URL"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Use Signature"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_res_company__ls_portal_notification_user_ids
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_res_config_settings__ls_portal_notification_user_ids
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.res_config_settings_view_form
+msgid "Users Notified of Portal Logistics DeCA Generations"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "VAT"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "VAT:"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
+msgid "WAYBILL"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.actions.report,name:logistics_planning_deca.action_report_logistics_schedule_deca_waybill
+msgid "Waybill (DeCA)"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
+#, python-format
+msgid "You must provide a signature before generating the DeCA document."
+msgstr ""
+
+#. module: logistics_planning_deca
+#: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
+#, python-format
+msgid "You must set a driver before generating the DeCA document."
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.model,name:logistics_planning_deca.model_logistics_schedule
+msgid "logistics.schedule"
+msgstr ""

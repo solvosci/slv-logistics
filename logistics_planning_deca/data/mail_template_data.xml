@@ -1,0 +1,19 @@
+<odoo>
+    <data noupdate="1">
+        <record id="mail_template_deca_portal_notification" model="mail.template">
+            <field name="name">DECA Portal Notification</field>
+            <field name="email_from">${object.company_id.email}</field>
+            <field name="model_id" ref="model_logistics_schedule"/>
+            <field name="subject">DECA generated: ${object.deca_sequence}</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        <strong>${ctx.get('requester_name') | safe}</strong>
+                        has generated the DECA document for logistics schedule
+                        <strong>${object.deca_sequence}</strong>.
+                    </p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>
