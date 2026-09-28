@@ -418,7 +418,7 @@ msgstr "Fecha de Carga"
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_home_schedule
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
 msgid "Logistics Planning"
-msgstr "Planificiones Logísticas"
+msgstr "Planificaciones Logísticas"
 
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
