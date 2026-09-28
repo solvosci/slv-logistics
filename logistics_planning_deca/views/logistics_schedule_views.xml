@@ -71,6 +71,7 @@
                             <group string="DeCA PDF &amp; Metadata" attrs="{'invisible': [('deca_is_generated', '=', False)]}">
                                 <field
                                     name="deca_attachment_id"
+                                    readonly="1"
                                     widget="many2one_binary"
                                     filename="deca_attachment_id"
                                     string="Attachment"
