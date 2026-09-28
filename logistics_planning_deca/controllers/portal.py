@@ -32,8 +32,7 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
             ('is_company', '=', False),
             '|', ('company_id', '=', False), ('company_id', '=', request.env.company.id),
         ]
-        if carrier_id:
-            domain.append(('parent_id', '=', carrier_id))
+        domain.append(('parent_id', '=', carrier_id or 0))
         return request.env['res.partner'].sudo().search(domain, order='name')
 
     def _prepare_home_portal_values(self):
