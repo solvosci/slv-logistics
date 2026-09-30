@@ -26,11 +26,6 @@ msgid "(Re)generate DeCA"
 msgstr ""
 
 #. module: logistics_planning_deca
-#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
-msgid "-- Select a driver --"
-msgstr ""
-
-#. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.report_logistics_schedule_waybill_document
 msgid "<br/>DeCA"
 msgstr ""
@@ -49,6 +44,16 @@ msgid ""
 msgstr ""
 
 #. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+msgid "<span class=\"badge rounded-pill text-bg-success\">Generated</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
+msgid "<span class=\"badge rounded-pill text-bg-warning\">Pending</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
 msgid "<span class=\"text-muted small\">Carrier</span>"
 msgstr ""
@@ -56,6 +61,11 @@ msgstr ""
 #. module: logistics_planning_deca
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
 msgid "<span class=\"text-muted small\">Commitment Date</span>"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "<span class=\"text-muted small\">Driver VAT</span>"
 msgstr ""
 
 #. module: logistics_planning_deca
@@ -244,6 +254,7 @@ msgid "Dates"
 msgstr ""
 
 #. module: logistics_planning_deca
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_my_schedules
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.res_config_settings_view_form
 msgid "DeCA"
 msgstr ""
@@ -284,9 +295,15 @@ msgid "Delivery Document"
 msgstr ""
 
 #. module: logistics_planning_deca
-#: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_driver_id
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_driver
 #: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
 msgid "Driver"
+msgstr ""
+
+#. module: logistics_planning_deca
+#: model:ir.model.fields,field_description:logistics_planning_deca.field_logistics_schedule__deca_driver_vat
+#: model_terms:ir.ui.view,arch_db:logistics_planning_deca.portal_schedule_detail
+msgid "Driver VAT"
 msgstr ""
 
 #. module: logistics_planning_deca
@@ -489,7 +506,7 @@ msgstr ""
 #. module: logistics_planning_deca
 #: code:addons/logistics_planning_deca/models/logistics_schedule.py:0
 #, python-format
-msgid "You must set a driver before generating the DeCA document."
+msgid "You must set a driver and his VAT before generating the DeCA document."
 msgstr ""
 
 #. module: logistics_planning_deca

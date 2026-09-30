@@ -110,7 +110,6 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
             'page_name': 'schedule',
             'message': message,
             'error': error,
-            'available_drivers': self._get_available_drivers(schedule_sudo.carrier_id.id),
         }
         return request.render(
             "logistics_planning_deca.portal_schedule_detail", values
@@ -123,9 +122,9 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
         except (AccessError, MissingError):
             return request.redirect('/my')
 
-        driver_id = post.get('deca_driver_id')
         vals = {
-            'deca_driver_id': int(driver_id) if driver_id else False,
+            'deca_driver': post.get('deca_driver') or False,
+            'deca_driver_vat': post.get('deca_driver_vat') or False,
             'license_plate_1': post.get('license_plate_1') or False,
             'license_plate_2': post.get('license_plate_2') or False,
         }

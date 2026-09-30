@@ -150,9 +150,14 @@
                         <span class="fw-semibold text-end" t-field="schedule.effective_carrier_id.name"/>
                     </div>
                     <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
-                        t-if="schedule.deca_driver_id">
+                        t-if="schedule.deca_driver">
                         <span class="text-muted small">Driver</span>
-                        <span class="fw-semibold text-end" t-field="schedule.deca_driver_id.name"/>
+                        <span class="fw-semibold text-end" t-field="schedule.deca_driver"/>
+                    </div>
+                    <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
+                        t-if="schedule.deca_driver">
+                        <span class="text-muted small">Driver VAT</span>
+                        <span class="fw-semibold text-end" t-field="schedule.deca_driver_vat"/>
                     </div>
                     <div class="o_portal_schedule_row d-flex justify-content-between align-items-start py-2 border-bottom"
                         t-if="schedule.license_plate_1">
@@ -201,17 +206,15 @@
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                 <input type="hidden" name="deca_signature" id="o_schedule_signature_input"/>
 
-                                <div class="col-6">
-                                    <label class="form-label small mb-1" for="deca_driver_id">Driver</label>
-                                    <select class="form-select form-select-sm w-100" id="deca_driver_id" name="deca_driver_id">
-                                        <option value="">-- Select a driver --</option>
-                                        <t t-foreach="available_drivers" t-as="driver">
-                                            <option t-att-value="driver.id"
-                                                    t-att-selected="driver.id == schedule.deca_driver_id.id">
-                                                <t t-esc="driver.name"/>
-                                            </option>
-                                        </t>
-                                    </select>
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label small mb-1" for="deca_driver">Driver</label>
+                                    <input type="text" class="form-control form-control-sm" id="deca_driver"
+                                        name="deca_driver"
+                                        t-att-value="schedule.deca_driver"/>
+                                    <label class="form-label small mb-1" for="deca_driver_vat">Driver VAT</label>
+                                    <input type="text" class="form-control form-control-sm" id="deca_driver_vat"
+                                        name="deca_driver_vat"
+                                        t-att-value="schedule.deca_driver_vat"/>
                                     <div class="">
                                         <label class="form-label small mb-1 invisible d-block">Save</label>
                                         <button type="submit" class="btn btn-primary btn-sm w-100">Save</button>
