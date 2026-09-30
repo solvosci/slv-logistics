@@ -12,9 +12,13 @@ class LogisticsSchedule(models.Model):
     _name = 'logistics.schedule'
     _inherit = ['logistics.schedule', 'deca.document.mixin', 'mail.thread']
 
-    deca_driver_id = fields.Many2one(
-        'res.partner',
+    deca_driver = fields.Char(
+        copy=False,
         string="Driver",
+    )
+    deca_driver_vat = fields.Char(
+        copy=False,
+        string="Driver VAT",
     )
     deca_signature = fields.Binary(
         string="DeCA Signature",
@@ -35,9 +39,9 @@ class LogisticsSchedule(models.Model):
 
     def _check_deca_can_generate_extra(self):
         for record in self:
-            if not record.deca_driver_id:
+            if not record.deca_driver or not record.deca_driver_vat:
                 raise UserError(_(
-                    "You must set a driver before generating the DeCA document."
+                    "You must set a driver and his VAT before generating the DeCA document."
                 ))
             if not record.deca_signature:
                 raise UserError(_(

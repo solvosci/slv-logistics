@@ -40,7 +40,8 @@
         <field name="inherit_id" ref="logistics_planning_base.logistics_schedule_view_form"/>
         <field name="arch" type="xml">
             <field name="effective_carrier_id" position="after">
-                <field name="deca_driver_id" domain="[('is_company', '=', False)]"/>
+                <field name="deca_driver" />
+                <field name="deca_driver_vat" />
             </field>
 
             <header position="inside">

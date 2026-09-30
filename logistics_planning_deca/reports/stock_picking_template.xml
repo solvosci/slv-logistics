@@ -133,16 +133,13 @@
             </table>
 
             <!-- (Driver) -->
-            <table class="w-75" style="font-size: 16px; margin-bottom: 25px;" name="table-driver" t-if="doc.deca_driver_id">
+            <table class="w-75" style="font-size: 16px; margin-bottom: 25px;" name="table-driver" t-if="doc.deca_driver">
                 <tbody>
                     <tr>
                         <td class="d-flex" style="width: 375px;"><strong>Driver:</strong></td>
                         <td class="w-100">
-                            <span t-field="doc.deca_driver_id.name"/><br/>
-                            <span t-field="doc.deca_driver_id.street" t-if="doc.deca_driver_id.street"/><br t-if="doc.deca_driver_id.street"/>
-                            <span t-field="doc.deca_driver_id.zip"/>
-                            <span t-field="doc.deca_driver_id.city"/><br/>
-                            <span t-if="doc.deca_driver_id.vat">VAT: <span t-field="doc.deca_driver_id.vat"/></span>
+                            <span t-field="doc.deca_driver"/><br/>
+                            <span t-if="doc.deca_driver_vat">VAT: <span t-field="doc.deca_driver_vat"/></span>
                         </td>
                     </tr>
                 </tbody>

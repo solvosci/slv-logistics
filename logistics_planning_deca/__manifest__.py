@@ -7,7 +7,7 @@
     ''',
     'author': 'Solvos',
     'license': 'LGPL-3',
-    'version': '13.0.1.1.0',
+    'version': '13.0.1.2.0',
     'category': 'stock',
     'website': 'https://github.com/solvosci/slv-logistics',
     'depends': ["logistics_planning_base", "l10n_es_stock_picking_deca"],
