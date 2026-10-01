@@ -157,7 +157,8 @@ class LogisticsScheduleCustomerPortal(CustomerPortal):
             schedule_sudo.action_generate_deca()
             schedule_sudo.send_mail_notification_deca_portal(requested_by=request.env.user.partner_id)
         except Exception as e:
-            return request.redirect(f'/my/schedules/{schedule_id}?error={str(e)}')
+            error_message = e.args[0] if len(e.args) >= 1 else str(e)
+            return request.redirect(f'/my/schedules/{schedule_id}?error={error_message}')
         return request.redirect(f'/my/schedules/{schedule_id}?message=action_done')
 
     @http.route(['/my/schedules/<int:schedule_id>/document'], type='http', auth='user', website=True)

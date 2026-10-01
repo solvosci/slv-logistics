@@ -206,7 +206,7 @@
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                                 <input type="hidden" name="deca_signature" id="o_schedule_signature_input"/>
 
-                                <div class="col-6 col-md-3">
+                                <div class="col-8">
                                     <label class="form-label small mb-1" for="deca_driver">Driver</label>
                                     <input type="text" class="form-control form-control-sm" id="deca_driver"
                                         name="deca_driver"
@@ -221,13 +221,11 @@
                                     </div>
                                 </div>
 
-                                <div class="col-3">
+                                <div class="col-4">
                                     <label class="form-label small mb-1" for="license_plate_1">License Plate</label>
                                     <input type="text" class="form-control form-control-sm" id="license_plate_1"
                                         name="license_plate_1"
                                         t-att-value="schedule.license_plate_1"/>
-                                </div>
-                                <div class="col-3">
                                     <label class="form-label small mb-1" for="license_plate_2">License Plate 2</label>
                                     <input type="text" class="form-control form-control-sm" id="license_plate_2"
                                         name="license_plate_2"
